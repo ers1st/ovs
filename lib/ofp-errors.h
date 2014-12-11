@@ -637,6 +637,19 @@ enum ofperr {
     /* OF1.4+(17,15).  Bundle is locking the resource. */
     OFPERR_OFPBFC_BUNDLE_IN_PROGRESS,
 
+/* ## ---------------------- ## */
+/* ## OFPET_STATE_MOD_FAILED ## */
+/* ## ---------------------- ## */
+
+	/* OF1.3+(18,0).  Specified table does not exist. */
+	OFPERR_OFPSMFC_ERR0,
+
+	/* OF1.3+(18,1).  Specified config is invalid. */
+	OFPERR_OFPSMFC_ERR1,
+
+	/* OF1.3+(18,2).  Permissions error. */
+	OFPERR_OFPSMFC_ERR2,
+
 /* ## ------------------ ## */
 /* ## OFPET_EXPERIMENTER ## */
 /* ## ------------------ ## */

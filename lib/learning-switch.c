@@ -336,6 +336,8 @@ lswitch_process_packet(struct lswitch *sw, const struct ofpbuf *msg)
         /* Nothing to do. */
         break;
 
+    case OFPTYPE_STATE_MOD:
+    case OFPTYPE_FLAG_MOD:
     case OFPTYPE_HELLO:
     case OFPTYPE_ERROR:
     case OFPTYPE_ECHO_REPLY:

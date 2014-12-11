@@ -1163,6 +1163,13 @@ ofconn_report_flow_mod(struct ofconn *ofconn,
     ofconn->last_op = now;
 }
 
+/* Reports that a state_mod operation of the type specified by 'command' was
+ * successfully executed by 'ofconn', so that the connmgr can log it. */
+void ofconn_report_state_mod(struct ofconn *ofconn,
+		enum ofp13_state_mod_command command) {
+	/*TODO*/
+}
+
 /* Returns true if 'ofconn' has any pending opgroups. */
 bool
 ofconn_has_pending_opgroups(const struct ofconn *ofconn)

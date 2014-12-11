@@ -1171,4 +1171,45 @@ struct ofpbuf *ofputil_encode_bundle_add(enum ofp_version ofp_version,
 
 enum ofperr ofputil_decode_bundle_add(const struct ofp_header *,
                                       struct ofputil_bundle_add_msg *);
+
+/* Openstate structures and methods. */
+struct ofputil_state_entry {
+	uint32_t key_len;
+	uint32_t state;
+	uint8_t key[OFPSC_MAX_KEY_LEN];
+};
+
+struct ofputil_extraction {
+	uint32_t field_count;
+	uint32_t fields[OFPSC_MAX_FIELD_COUNT];
+};
+
+struct ofputil_state_mod {
+	uint64_t cookie;
+	uint64_t cookie_mask;
+	uint8_t table_id;
+	uint8_t command; /* ofp_state_mod_command */
+	struct ofp13_state_entry entry; /* PROVVISORIO! */
+	struct ofp13_extraction extraction; /* PROVVISORIO! */
+};
+
+struct ofputil_flag_mod {
+	uint32_t flag;
+	uint32_t flag_mask;
+	uint8_t command;
+	uint8_t pad[3];
+};
+
+enum ofperr ofputil_decode_state_mod(const struct ofp_header *,
+		struct ofputil_state_mod *);
+
+struct ofpbuf *ofputil_encode_state_mod(const struct ofp_header *,
+		struct ofputil_state_mod *);
+
+enum ofperr ofputil_decode_flag_mod(const struct ofp_header *,
+		struct ofputil_flag_mod *);
+
+struct ofpbuf *ofputil_encode_flag_mod(const struct ofp_header *,
+		struct ofputil_flag_mod *);
+
 #endif /* ofp-util.h */

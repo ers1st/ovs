@@ -121,7 +121,9 @@ enum ofp13_action_type {
     OFPAT13_DEC_NW_TTL   = 24,  /* Decrement IP TTL. */
     OFPAT13_SET_FIELD    = 25,  /* Set a header field using OXM TLV format. */
     OFPAT13_PUSH_PBB     = 26,  /* Push a new PBB service tag (I-TAG) */
-    OFPAT13_POP_PBB      = 27   /* Pop the outer PBB service tag (I-TAG) */
+    OFPAT13_POP_PBB      = 27,  /* Pop the outer PBB service tag (I-TAG) */
+	OFPAT13_SET_STATE	 = 28,	/* Set the new state in the state table. */
+	OFPAT13_SET_FLAG	 = 29 	/* Set the new flag in the datapath. */
 };
 
 /* enum ofp_config_flags value OFPC_INVALID_TTL_TO_CONTROLLER
@@ -471,5 +473,66 @@ struct ofp13_packet_in {
 };
 OFP_ASSERT(sizeof(struct ofp13_packet_in) == 16);
 
+
+/*Openstate structures. */
+
+/* State mod message types. */
+enum ofp13_state_mod_command {
+	OFPSC_SET_L_EXTRACTOR = 0,
+	OFPSC_SET_U_EXTRACTOR,
+	OFPSC_ADD_FLOW_STATE,
+	OFPSC_DEL_FLOW_STATE,
+};
+
+struct ofp13_state_entry {
+	ovs_be32 key_len;
+	ovs_be32 state;
+	uint8_t key[OFPSC_MAX_KEY_LEN];
+};
+OFP_ASSERT(sizeof(struct ofp13_state_entry) == 56);
+
+struct ofp13_extraction {
+	ovs_be32 field_count;
+	ovs_be32 fields[OFPSC_MAX_FIELD_COUNT];
+};
+OFP_ASSERT(sizeof(struct ofp13_extraction) == 28);
+
+/* Message structure for OFPT_STATE_MOD. */
+struct ofp13_state_mod {
+	ovs_be64 cookie;
+	ovs_be64 cookie_mask;
+	uint8_t table_id;
+	uint8_t command;
+	uint8_t pad[6];
+	/* Followed by one between:
+	 * struct ofp13_extraction and
+	 * struct ofp13_state_entry. */
+};
+OFP_ASSERT(sizeof(struct ofp13_state_mod) == 24);
+
+/* Flag mod message types. */
+enum ofp13_flag_mod_command {
+	OFPSC_MODIFY_FLAGS = 0,
+	OFPSC_RESET_FLAGS
+};
+
+/* Message structure for OFPT_FLAG_MOD. */
+struct ofp13_flag_mod {
+	ovs_be32 flag;
+	ovs_be32 flag_mask;
+	uint8_t command;
+	uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp13_flag_mod) == 12);
+
+/* Action structure for OFPAT_SET_STATE. */
+struct ofp13_action_set_state {
+	ovs_be16 type;              /* OFPAT_SET_STATE. */
+	ovs_be16 len;               /* Length is 8. */
+	ovs_be32 state;             /* State instance. */
+	uint8_t stage_id;           /* Stage destination. */
+	uint8_t pad[7];             /* Align to 64-bits. */
+};
+OFP_ASSERT(sizeof(struct ofp13_action_set_state) == 16);
 
 #endif /* openflow/openflow-1.3.h */

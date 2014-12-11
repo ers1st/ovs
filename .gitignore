@@ -25,6 +25,10 @@
 .dirstamp
 .libs
 .tmp_versions
+/.cproject
+/.project
+/.settings
+/.settings/**
 /Makefile
 /Makefile.in
 /aclocal.m4
