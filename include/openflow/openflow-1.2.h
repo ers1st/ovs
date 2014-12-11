@@ -116,7 +116,9 @@ enum oxm12_ofb_match_fields {
     OFPXMT13_OFB_PBB_ISID,       /* PBB I-SID. */
     OFPXMT13_OFB_TUNNEL_ID,      /* Logical Port Metadata */
     OFPXMT13_OFB_IPV6_EXTHDR,    /* IPv6 Extension Header pseudo-field */
-#define OFPXMT13_MASK ((1ULL << (OFPXMT13_OFB_IPV6_EXTHDR + 1)) - 1)
+    OFPXMT13_OFB_STATE,          /* OpenState state. */
+    OFPXMT13_OFB_FLAGS,          /* OpenState flags. */
+#define OFPXMT13_MASK ((1ULL << (OFPXMT13_OFB_FLAGS + 1)) - 1)
 
     /* Following added in OpenFlow 1.4. */
     OFPXMT14_OFB_PBB_UCA = 41,  /* PBB UCA header field. */
@@ -196,6 +198,9 @@ enum oxm12_ofb_match_fields {
 #define OXM_OF_PBB_UCA        OXM_HEADER   (OFPXMT14_OFB_PBB_UCA, 1)
 #define OXM_OF_TCP_FLAGS      OXM_HEADER   (OFPXMT15_OFB_TCP_FLAGS, 2)
 #define OXM_OF_TCP_FLAGS_W    OXM_HEADER_W (OFPXMT15_OFB_TCP_FLAGS, 2)
+#define OXM_OF_STATE          OXM_HEADER   (OFPXMT13_OFB_STATE, 4) /* TODO: Length? */
+#define OXM_OF_FLAGS          OXM_HEADER   (OFPXMT13_OFB_FLAGS, 4)
+#define OXM_OF_FLAGS_W        OXM_HEADER_W (OFPXMT13_OFB_FLAGS, 4)
 
 /* The VLAN id is 12-bits, so we can use the entire 16 bits to indicate
  * special conditions.

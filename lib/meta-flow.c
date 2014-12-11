@@ -207,6 +207,30 @@ const struct mf_field mf_fields[MFF_N_IDS] = {
         OFPUTIL_P_NXM_OXM_ANY,
         OFPUTIL_P_NXM_OXM_ANY,
         -1,
+    }, {
+        MFF_STATE, "state", NULL,
+        MF_FIELD_SIZES(be32),
+        MFM_FULLY,
+        MFS_DECIMAL,
+        MFP_NONE,
+        true,
+        OXM_OF_STATE, "OXM_OF_STATE",
+        OXM_OF_STATE, "OXM_OF_STATE", OFP13_VERSION,
+        OFPUTIL_P_NXM_OXM_ANY, /*TODO: controlla protocolli supportati */
+        OFPUTIL_P_NXM_OXM_ANY,
+        -1,
+    }, {
+        MFF_FLAGS, "flags", NULL,
+        MF_FIELD_SIZES(be32),
+        MFM_FULLY,
+        MFS_DECIMAL,
+        MFP_NONE,
+        true, 
+        OXM_OF_FLAGS, "OXM_OF_FLAGS",
+        OXM_OF_FLAGS, "OXM_OF_FLAGS", OFP13_VERSION,
+        OFPUTIL_P_NXM_OXM_ANY,
+        OFPUTIL_P_NXM_OXM_ANY,
+        -1,
     },
 
 #define REGISTER(IDX)                           \

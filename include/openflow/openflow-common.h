@@ -493,6 +493,9 @@ enum ofp_table_config {
     /* OpenFlow 1.4. */
     OFPTC14_EVICTION              = 1 << 2, /* Allow table to evict flows. */
     OFPTC14_VACANCY_EVENTS        = 1 << 3, /* Enable vacancy events. */
+
+    /* OpenState. */
+    OFPTC13_TABLE_STATEFUL        = 1 << 4, /* Enable state table processing. */
 };
 
 
