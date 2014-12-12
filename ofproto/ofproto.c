@@ -319,17 +319,18 @@ static void ofproto_unixctl_init(void);
 static enum ofperr get_state(struct ofputil_state_mod *, uint32_t *);
 static enum ofperr ofproto_check_state(uint32_t *, struct ofproto *);
 static enum ofperr set_lookup_extractor(struct ofproto *, struct ofputil_state_mod *,
-		const struct state_mod_requester *);
+										const struct state_mod_requester *);
 static enum ofperr set_update_extractor(struct ofproto *, struct ofputil_state_mod *,
-		const struct state_mod_requester *);
+										const struct state_mod_requester *);
 static enum ofperr add_flow_state(struct ofproto *, struct ofputil_state_mod *,
-		const struct state_mod_requester *);
+									const struct state_mod_requester *);
 static enum ofperr del_flow_state(struct ofproto *, struct ofputil_state_mod *,
-		const struct state_mod_requester *);
-static enum ofperr handle_state_mod__(struct ofproto *,
-		struct ofputil_state_mod *,
-		const struct state_mod_requester *)
+									const struct state_mod_requester *);
+static enum ofperr handle_state_mod__(struct ofproto *, struct ofputil_state_mod *,
+										const struct state_mod_requester *)
 OVS_EXCLUDED(ofproto_mutex);
+static enum ofperr handle_state_mod(struct ofconn *, const struct ofp_header *);
+static enum ofperr handle_flag_mod(struct ofconn *, const struct ofp_header *);
 
 /* All registered ofproto classes, in probe order. */
 static const struct ofproto_class **ofproto_classes;

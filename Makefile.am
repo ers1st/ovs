@@ -77,9 +77,13 @@ EXTRA_DIST = \
 	NOTICE \
 	OPENFLOW-1.1+ \
 	PORTING \
+	README.md \
 	README-lisp \
 	REPORTING-BUGS \
 	TODO \
+	.travis.yml \
+	.travis/build.sh \
+	.travis/prepare.sh \
 	WHY-OVS \
 	boot.sh \
 	build-aux/cccl \

@@ -7568,3 +7568,77 @@ ofputil_encode_bundle_add(enum ofp_version ofp_version,
 
     return request;
 }
+
+/* Decodes the OpenFlow (openstate) "state mod" message in '*oh'
+ * into an abstract form in '*sm*. Returns 0 if successful,
+ * otherwise an OFPERR_* value. */
+enum ofperr
+ofputil_decode_state_mod(const struct ofp_header *oh,
+                         struct ofputil_state_mod *sm)
+{
+	enum ofpraw raw;
+    struct ofpbuf b;
+
+    ofpbuf_use_const(&b, oh, ntohs(oh->length));
+    raw = ofpraw_pull_assert(&b);
+
+    if (raw == OFPRAW_OFPT13_STATE_MOD) {
+        const struct ofp13_state_mod *osm = ofpbuf_data(&b);
+
+		sm->cookie = ntohll(osm->cookie);
+		sm->cookie_mask = ntohll(osm->cookie_mask);
+        sm->table_id = osm->table_id;
+		sm->command = osm->command;
+		/*sm-> = ntohs(osm->) TODO verrà impostato dinamicamente*/
+
+    } else {
+    	ovs_fatal(0, "state mod needs OpenFlow 1.3 or later\n");
+        return OFPERR_OFPBRC_BAD_TYPE;
+    }
+
+    return 0;
+}
+
+/* TODO quando viene usata?? Solo da /utilities/ovs-ofctl?? */
+struct ofpbuf *
+ofputil_encode_state_mod(const struct ofp_header *oh,
+                                 struct ofputil_state_mod *msg)
+{
+
+}
+
+/* Decodes the OpenFlow (openstate) "flag mod" message in '*oh'
+ * into an abstract form in '*fm*. Returns 0 if successful,
+ * otherwise an OFPERR_* value. */
+enum ofperr
+ofputil_decode_flag_mod(const struct ofp_header *oh,
+                         struct ofputil_flag_mod *fm)
+{
+	enum ofpraw raw;
+    struct ofpbuf b;
+    int i;
+
+    ofpbuf_use_const(&b, oh, ntohs(oh->length));
+    raw = ofpraw_pull_assert(&b);
+
+    if (raw == OFPRAW_OFPT13_FLAG_MOD) {
+        const struct ofp13_flag_mod *ofm = ofpbuf_data(&b);
+
+		fm->flag = ntohl(ofm->flag);
+		fm->flag_mask = ntohl(ofm->flag_mask);
+		fm->command = ofm->command;
+
+    } else {
+    	ovs_fatal(0, "flag mod needs OpenFlow 1.3 or later\n");
+        return OFPERR_OFPBRC_BAD_TYPE;
+    }
+
+    return 0;
+}
+/* TODO quando viene usata?? Solo da /utilities/ovs-ofctl?? */
+struct ofpbuf *
+ofputil_encode_flag_mod(const struct ofp_header *oh,
+                                 struct ofputil_flag_mod *msg)
+{
+
+}

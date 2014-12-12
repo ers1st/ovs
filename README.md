@@ -3,7 +3,7 @@
 Build Status:
 -------------
 
-[![Build Status](https://travis-ci.org/ers1st/ovs-openstate.svg?branch=v2.3+openstate)](https://travis-ci.org/ers1st/ovs-openstate)
+[![Build Status](https://travis-ci.org/ers1st/ovs-openstate.svg?branch=v2.3%2Bopenstate)](https://travis-ci.org/ers1st/ovs-openstate)
 
 What is Open vSwitch?
 ---------------------

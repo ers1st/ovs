@@ -3,14 +3,14 @@
 set -o errexit
 
 KERNELSRC=""
-CFLAGS=""
+CFLAGS="-msse2"
 #CFLAGS="-Werror"
 
 function install_kernel()
 {
-    wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.16.2.tar.gz
-    tar xzvf linux-3.16.2.tar.gz > /dev/null
-    cd linux-3.16.2
+    wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.14.26.tar.gz
+    tar xzvf linux-3.14.26.tar.gz > /dev/null
+    cd linux-3.14.26
     make allmodconfig
     make net/openvswitch/
     KERNELSRC=$(pwd)
