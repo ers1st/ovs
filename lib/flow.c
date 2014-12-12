@@ -121,7 +121,7 @@ struct mf_ctx {
  * away.  Some GCC versions gave warnigns on ALWAYS_INLINE, so these are
  * defined as macros. */
 
-#if (FLOW_WC_SEQ != 26)
+#if (FLOW_WC_SEQ != 27)
 #define MINIFLOW_ASSERT(X) ovs_assert(X)
 #else
 #define MINIFLOW_ASSERT(X)
@@ -380,6 +380,7 @@ miniflow_extract(struct ofpbuf *packet, const struct pkt_metadata *md,
         miniflow_push_uint32_check(mf, pkt_mark, md->pkt_mark);
         miniflow_push_uint32_check(mf, recirc_id, md->recirc_id);
         miniflow_push_uint32(mf, in_port, odp_to_u32(md->in_port.odp_port));
+        miniflow_push_uint32_check(mf, state, md->state);
     }
 
     /* Initialize packet's layer pointer and offsets. */
@@ -656,7 +657,7 @@ flow_unwildcard_tp_ports(const struct flow *flow, struct flow_wildcards *wc)
 void
 flow_get_metadata(const struct flow *flow, struct flow_metadata *fmd)
 {
-    BUILD_ASSERT_DECL(FLOW_WC_SEQ == 26);
+    BUILD_ASSERT_DECL(FLOW_WC_SEQ == 27);
 
     fmd->dp_hash = flow->dp_hash;
     fmd->recirc_id = flow->recirc_id;
@@ -667,6 +668,7 @@ flow_get_metadata(const struct flow *flow, struct flow_metadata *fmd)
     memcpy(fmd->regs, flow->regs, sizeof fmd->regs);
     fmd->pkt_mark = flow->pkt_mark;
     fmd->in_port = flow->in_port.ofp_port;
+    fmd->state = flow->state;
 }
 
 char *
@@ -1316,7 +1318,7 @@ flow_push_mpls(struct flow *flow, int n, ovs_be16 mpls_eth_type,
         flow->mpls_lse[0] = set_mpls_lse_values(ttl, tc, 1, htonl(label));
 
         /* Clear all L3 and L4 fields. */
-        BUILD_ASSERT(FLOW_WC_SEQ == 26);
+        BUILD_ASSERT(FLOW_WC_SEQ == 27);
         memset((char *) flow + FLOW_SEGMENT_2_ENDS_AT, 0,
                sizeof(struct flow) - FLOW_SEGMENT_2_ENDS_AT);
     }

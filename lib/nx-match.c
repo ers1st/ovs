@@ -616,7 +616,7 @@ nx_put_raw(struct ofpbuf *b, enum ofp_version oxm, const struct match *match,
     int match_len;
     int i;
 
-    BUILD_ASSERT_DECL(FLOW_WC_SEQ == 26);
+    BUILD_ASSERT_DECL(FLOW_WC_SEQ == 27);
 
     /* Metadata. */
     if (match->wc.masks.dp_hash) {
@@ -642,6 +642,14 @@ nx_put_raw(struct ofpbuf *b, enum ofp_version oxm, const struct match *match,
                        htons(ofp_to_u16(in_port)));
         }
     }
+
+    if (match->wc.masks.state) {
+        if (oxm) {
+            nxm_put_32(b, MFF_STATE, htonl(flow->state)); /* Basta MFF_STATE? */
+        } else {
+            /*TODO: vedi bene.*/
+        }
+    } 
 
     /* Ethernet. */
     nxm_put_eth_masked(b, mf_oxm_header(MFF_ETH_SRC, oxm),

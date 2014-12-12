@@ -38,7 +38,7 @@ struct pkt_metadata;
 /* This sequence number should be incremented whenever anything involving flows
  * or the wildcarding of flows changes.  This will cause build assertion
  * failures in places which likely need to be updated. */
-#define FLOW_WC_SEQ 26
+#define FLOW_WC_SEQ 27
 
 #define FLOW_N_REGS 8
 BUILD_ASSERT_DECL(FLOW_N_REGS <= NXM_NX_MAX_REGS);
@@ -92,6 +92,7 @@ struct flow {
     uint32_t pkt_mark;          /* Packet mark. */
     uint32_t recirc_id;         /* Must be exact match. */
     union flow_in_port in_port; /* Input port.*/
+    uint32_t state;             /* OpenState state. */ 
 
     /* L2, Order the same as in the Ethernet header! */
     uint8_t dl_dst[6];          /* Ethernet destination address. */
@@ -129,8 +130,8 @@ BUILD_ASSERT_DECL(sizeof(struct flow) % 4 == 0);
 
 /* Remember to update FLOW_WC_SEQ when changing 'struct flow'. */
 BUILD_ASSERT_DECL(offsetof(struct flow, dp_hash) + sizeof(uint32_t)
-                  == sizeof(struct flow_tnl) + 172
-                  && FLOW_WC_SEQ == 26);
+                  == sizeof(struct flow_tnl) + 176
+                  && FLOW_WC_SEQ == 27);
 
 /* Incremental points at which flow classification may be performed in
  * segments.
@@ -164,6 +165,7 @@ struct flow_metadata {
     uint32_t regs[FLOW_N_REGS];      /* Registers. */
     uint32_t pkt_mark;               /* Packet mark. */
     ofp_port_t in_port;              /* OpenFlow port or zero. */
+    uint32_t state;                  /* OpenState state. */
 };
 
 void flow_extract(struct ofpbuf *, const struct pkt_metadata *md,
