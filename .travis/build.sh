@@ -3,7 +3,7 @@
 set -o errexit
 
 KERNELSRC=""
-CFLAGS=""
+CFLAGS="-msse2"
 #CFLAGS="-Werror"
 
 function install_kernel()
