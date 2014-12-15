@@ -87,6 +87,10 @@ odp_execute_set_action(struct ofpbuf *packet, const struct nlattr *a,
         md->pkt_mark = nl_attr_get_u32(a);
         break;
 
+    case OVS_KEY_ATTR_STATE:
+        md->state = nl_attr_get_u32(a);
+        break;
+
     case OVS_KEY_ATTR_ETHERNET:
         odp_eth_set_addrs(packet,
                           nl_attr_get_unspec(a, sizeof(struct ovs_key_ethernet)));

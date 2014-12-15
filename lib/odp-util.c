@@ -122,6 +122,7 @@ ovs_key_attr_to_string(enum ovs_key_attr attr, char *namebuf, size_t bufsize)
     case OVS_KEY_ATTR_MPLS: return "mpls";
     case OVS_KEY_ATTR_DP_HASH: return "dp_hash";
     case OVS_KEY_ATTR_RECIRC_ID: return "recirc_id";
+    case OVS_KEY_ATTR_STATE: return "state";
 
     case __OVS_KEY_ATTR_MAX:
     default:
@@ -1420,6 +1421,9 @@ format_odp_key_attr(const struct nlattr *a, const struct nlattr *ma,
         }
         break;
     }
+    case OVS_KEY_ATTR_STATE: {
+        /* TODO: to be defined. */
+    }
     case OVS_KEY_ATTR_UNSPEC:
     case __OVS_KEY_ATTR_MAX:
     default:
@@ -1612,7 +1616,7 @@ mpls_lse_from_components(int mpls_label, int mpls_tc, int mpls_ttl, int mpls_bos
 static int
 parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
                         struct ofpbuf *key, struct ofpbuf *mask)
-{
+{ /* TODO: gestire parsing dello state. */
     {
         uint32_t priority;
         uint32_t priority_mask;
@@ -1975,7 +1979,6 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
             ipv4_key.ipv4_frag = ipv4_frag;
             nl_msg_put_unspec(key, OVS_KEY_ATTR_IPV4,
                               &ipv4_key, sizeof ipv4_key);
-
             if (mask) {
                 memset(&ipv4_key, 0xff, sizeof ipv4_key);
                 nl_msg_put_unspec(mask, OVS_KEY_ATTR_IPV4,
@@ -2484,7 +2487,7 @@ static void
 odp_flow_key_from_flow__(struct ofpbuf *buf, const struct flow *flow,
                          const struct flow *mask, odp_port_t odp_in_port,
                          size_t max_mpls_depth, bool export_mask)
-{
+{ /* TODO: aggiungi state. */
     struct ovs_key_ethernet *eth_key;
     size_t encap;
     const struct flow *data = export_mask ? mask : flow;
@@ -2702,7 +2705,7 @@ odp_flow_key_from_mask(struct ofpbuf *buf, const struct flow *mask,
 /* Generate ODP flow key from the given packet metadata */
 void
 odp_key_from_pkt_metadata(struct ofpbuf *buf, const struct pkt_metadata *md)
-{
+{ /* TODO: aggiungi state. */
     nl_msg_put_u32(buf, OVS_KEY_ATTR_PRIORITY, md->skb_priority);
 
     if (md->tunnel.ip_dst) {
@@ -2722,7 +2725,7 @@ odp_key_from_pkt_metadata(struct ofpbuf *buf, const struct pkt_metadata *md)
 void
 odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
                         struct pkt_metadata *md)
-{
+{ /*TODO: gestisci state. */
     const struct nlattr *nla;
     size_t left;
     uint32_t wanted_attrs = 1u << OVS_KEY_ATTR_PRIORITY |
@@ -3292,7 +3295,7 @@ parse_8021q_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
 static enum odp_key_fitness
 odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
                        struct flow *flow, const struct flow *src_flow)
-{
+{/* TODO: gestisci state. */
     const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1];
     uint64_t expected_attrs;
     uint64_t present_attrs;
@@ -3855,6 +3858,7 @@ commit_set_pkt_mark_action(const struct flow *flow, struct flow *base,
 
     odp_put_pkt_mark_action(base->pkt_mark, odp_actions);
 }
+/* TODO: devo aggiungere commit_set_state_action()? */
 
 /* If any of the flow key data that ODP actions can modify are different in
  * 'base' and 'flow', appends ODP actions to 'odp_actions' that change the flow
