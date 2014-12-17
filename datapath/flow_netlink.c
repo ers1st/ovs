@@ -255,6 +255,7 @@ static const int ovs_key_lens[OVS_KEY_ATTR_MAX + 1] = {
 	[OVS_KEY_ATTR_DP_HASH] = sizeof(u32),
 	[OVS_KEY_ATTR_RECIRC_ID] = sizeof(u32),
 	[OVS_KEY_ATTR_TUNNEL] = -1,
+	[OVS_KEY_ATTR_STATE] = sizeof(u32),
 };
 
 static bool is_all_zero(const u8 *fp, size_t size)
@@ -456,7 +457,7 @@ static int ipv4_tun_to_nlattr(struct sk_buff *skb,
 
 static int metadata_from_nlattrs(struct sw_flow_match *match,  u64 *attrs,
 				 const struct nlattr **a, bool is_mask)
-{
+{/* TODO: gestisci state. */
 	if (*attrs & (1ULL << OVS_KEY_ATTR_DP_HASH)) {
 		u32 hash_val = nla_get_u32(a[OVS_KEY_ATTR_DP_HASH]);
 
@@ -505,7 +506,7 @@ static int metadata_from_nlattrs(struct sw_flow_match *match,  u64 *attrs,
 	}
 	return 0;
 }
-
+/* TODO: gestisci state? */
 static int ovs_key_from_nlattrs(struct sw_flow_match *match, u64 attrs,
 				const struct nlattr **a, bool is_mask)
 {
@@ -735,6 +736,7 @@ static void sw_flow_mask_set(struct sw_flow_mask *mask,
 	memset(m, val, range_n_bytes(range));
 }
 
+/*TODO: gestisci state. */
 /**
  * ovs_nla_get_match - parses Netlink attributes into a flow key and
  * mask. In case the 'mask' is NULL, the flow is treated as exact match
@@ -862,7 +864,7 @@ int ovs_nla_get_match(struct sw_flow_match *match,
  * get the metadata, that is, the parts of the flow key that cannot be
  * extracted from the packet itself.
  */
-
+/* TODO: gestisci state. */
 int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 			      const struct nlattr *attr)
 {
@@ -893,6 +895,7 @@ int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 	return 0;
 }
 
+/*TODO: gestisci state.*/
 int ovs_nla_put_flow(const struct sw_flow_key *swkey,
 		     const struct sw_flow_key *output, struct sk_buff *skb)
 {
@@ -1298,6 +1301,7 @@ static int validate_and_copy_set_tun(const struct nlattr *attr,
 	return err;
 }
 
+/*TODO: gestisci state. */
 static int validate_set(const struct nlattr *a,
 			const struct sw_flow_key *flow_key,
 			struct sw_flow_actions **sfa,
