@@ -3295,7 +3295,7 @@ parse_8021q_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
 static enum odp_key_fitness
 odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
                        struct flow *flow, const struct flow *src_flow)
-{/* TODO: gestisci state. */
+{
     const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1];
     uint64_t expected_attrs;
     uint64_t present_attrs;
@@ -3351,6 +3351,11 @@ odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
         expected_attrs |= UINT64_C(1) << OVS_KEY_ATTR_IN_PORT;
     } else if (!is_mask) {
         flow->in_port.odp_port = ODPP_NONE;
+    }
+
+    if (present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_STATE)) {
+    	flow->state = nl_attr_get_u32(attrs[OVS_KEY_ATTR_STATE]);
+    	expected_attrs |= UINT64_C(1) << OVS_KEY_ATTR_STATE;
     }
 
     /* Ethernet header. */

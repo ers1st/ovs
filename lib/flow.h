@@ -621,6 +621,7 @@ pkt_metadata_from_flow(const struct flow *flow)
     md.skb_priority = flow->skb_priority;
     md.pkt_mark = flow->pkt_mark;
     md.in_port = flow->in_port;
+    md.state = flow->state;
 
     return md;
 }
