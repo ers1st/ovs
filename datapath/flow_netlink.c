@@ -457,7 +457,7 @@ static int ipv4_tun_to_nlattr(struct sk_buff *skb,
 
 static int metadata_from_nlattrs(struct sw_flow_match *match,  u64 *attrs,
 				 const struct nlattr **a, bool is_mask)
-{/* TODO: gestisci state. */
+{
 	if (*attrs & (1ULL << OVS_KEY_ATTR_DP_HASH)) {
 		u32 hash_val = nla_get_u32(a[OVS_KEY_ATTR_DP_HASH]);
 
@@ -470,6 +470,13 @@ static int metadata_from_nlattrs(struct sw_flow_match *match,  u64 *attrs,
 
 		SW_FLOW_KEY_PUT(match, recirc_id, recirc_id, is_mask);
 		*attrs &= ~(1ULL << OVS_KEY_ATTR_RECIRC_ID);
+	}
+
+	if (*attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
+		u32 state = nla_get_u32(a[OVS_KEY_ATTR_STATE]);
+
+		SW_FLOW_KEY_PUT(match, state, state, is_mask);
+		*attrs &= ~(1ULL << OVS_KEY_ATTR_STATE);
 	}
 
 	if (*attrs & (1ULL << OVS_KEY_ATTR_PRIORITY)) {
@@ -506,7 +513,7 @@ static int metadata_from_nlattrs(struct sw_flow_match *match,  u64 *attrs,
 	}
 	return 0;
 }
-/* TODO: gestisci state? */
+
 static int ovs_key_from_nlattrs(struct sw_flow_match *match, u64 attrs,
 				const struct nlattr **a, bool is_mask)
 {
@@ -736,7 +743,6 @@ static void sw_flow_mask_set(struct sw_flow_mask *mask,
 	memset(m, val, range_n_bytes(range));
 }
 
-/*TODO: gestisci state. */
 /**
  * ovs_nla_get_match - parses Netlink attributes into a flow key and
  * mask. In case the 'mask' is NULL, the flow is treated as exact match
@@ -864,7 +870,6 @@ int ovs_nla_get_match(struct sw_flow_match *match,
  * get the metadata, that is, the parts of the flow key that cannot be
  * extracted from the packet itself.
  */
-/* TODO: gestisci state. */
 int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 			      const struct nlattr *attr)
 {
@@ -879,6 +884,7 @@ int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 	flow->key.phy.skb_mark = 0;
 	flow->key.ovs_flow_hash = 0;
 	flow->key.recirc_id = 0;
+	flow->key.state = 0;
 	memset(tun_key, 0, sizeof(flow->key.tun_key));
 
 	err = parse_flow_nlattrs(attr, a, &attrs);
@@ -895,7 +901,6 @@ int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 	return 0;
 }
 
-/*TODO: gestisci state.*/
 int ovs_nla_put_flow(const struct sw_flow_key *swkey,
 		     const struct sw_flow_key *output, struct sk_buff *skb)
 {
@@ -907,6 +912,9 @@ int ovs_nla_put_flow(const struct sw_flow_key *swkey,
 		goto nla_put_failure;
 
 	if (nla_put_u32(skb, OVS_KEY_ATTR_RECIRC_ID, output->recirc_id))
+		goto nla_put_failure;
+
+	if (nla_put_u32(skb, OVS_KEY_ATTR_STATE, output->state))
 		goto nla_put_failure;
 
 	if (nla_put_u32(skb, OVS_KEY_ATTR_PRIORITY, output->phy.priority))
@@ -1301,7 +1309,6 @@ static int validate_and_copy_set_tun(const struct nlattr *attr,
 	return err;
 }
 
-/*TODO: gestisci state. */
 static int validate_set(const struct nlattr *a,
 			const struct sw_flow_key *flow_key,
 			struct sw_flow_actions **sfa,
@@ -1325,6 +1332,7 @@ static int validate_set(const struct nlattr *a,
 	int err;
 
 	case OVS_KEY_ATTR_PRIORITY:
+	case OVS_KEY_ATTR_STATE:
 	case OVS_KEY_ATTR_SKB_MARK:
 	case OVS_KEY_ATTR_ETHERNET:
 		break;
