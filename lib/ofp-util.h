@@ -553,6 +553,7 @@ enum ofputil_action_bitmap {
     OFPUTIL_A_SET_NW_TTL     = 1 << 25,
     OFPUTIL_A_DEC_NW_TTL     = 1 << 26,
     OFPUTIL_A_SET_FIELD      = 1 << 27,
+	OFPUTIL_A_SET_STATE		 = 1 << 28,
 };
 
 /* Abstract ofp_switch_features. */

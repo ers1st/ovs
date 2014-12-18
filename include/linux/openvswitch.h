@@ -431,6 +431,10 @@ struct ovs_key_nd {
 	__u8  nd_tll[ETH_ALEN];
 };
 
+struct ovs_key_state {
+	/*TODO*/
+};
+
 /**
  * enum ovs_flow_attr - attributes for %OVS_FLOW_* commands.
  * @OVS_FLOW_ATTR_KEY: Nested %OVS_KEY_ATTR_* attributes specifying the flow
