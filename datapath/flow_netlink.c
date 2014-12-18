@@ -728,10 +728,10 @@ static int ovs_key_from_nlattrs(struct sw_flow_match *match, u64 attrs,
 		attrs &= ~(1ULL << OVS_KEY_ATTR_ND);
 	}
 
-	if (attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
-			const struct ovs_key_state *state_key;
-			/*TODO*/
-	}
+	// if (attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
+	// 		const struct ovs_key_state *state_key;
+	// 		/*TODO*/
+//	}
 
 	if (attrs != 0)
 		return -EINVAL;
