@@ -909,6 +909,10 @@ parse_named_action(enum ofputil_action_code code,
         error = str_to_u32(arg, &ofpact_put_GROUP(ofpacts)->group_id);
         break;
 
+    case OFPUTIL_OFPAT13_SET_STATE:
+    	error = str_to_u32(arg, &ofpact_put_SET_STATE(ofpacts)->state);
+    	break;
+
     /* FIXME when implement OFPAT13_* */
     case OFPUTIL_OFPAT13_COPY_TTL_OUT:
     case OFPUTIL_OFPAT13_COPY_TTL_IN:

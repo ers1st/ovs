@@ -58,6 +58,7 @@ union ofp_action {
     struct ofp11_action_mpls_ttl ofp11_mpls_ttl;
     struct ofp11_action_group group;
     struct ofp12_action_set_field set_field;
+    struct ofp13_action_set_state set_state;
     struct nx_action_header nxa_header;
     struct nx_action_resubmit resubmit;
     struct nx_action_set_tunnel set_tunnel;
@@ -772,6 +773,34 @@ decode_openflow11_action(const union ofp_action *a,
 }
 
 static enum ofperr
+decode_openflow13_action(const union ofp_action *a,
+                         enum ofputil_action_code *code) {
+    uint16_t len;
+
+    switch (a->type) {
+    case CONSTANT_HTONS(OFPAT11_EXPERIMENTER):
+        return decode_nxast_action(a, code);
+
+#define OFPAT13_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME)  \
+        case CONSTANT_HTONS(ENUM):                      \
+            len = ntohs(a->header.len);                 \
+            if (EXTENSIBLE                              \
+                ? len >= sizeof(struct STRUCT)          \
+                : len == sizeof(struct STRUCT)) {       \
+                *code = OFPUTIL_##ENUM;                 \
+                return 0;                               \
+            } else {                                    \
+                return OFPERR_OFPBAC_BAD_LEN;           \
+            }                                           \
+            OVS_NOT_REACHED();
+#include "ofp-util.def"
+
+    default:
+        return OFPERR_OFPBAC_BAD_TYPE;
+    }
+}
+
+static enum ofperr
 set_field_from_openflow(const struct ofp12_action_set_field *oasf,
                         struct ofpbuf *ofpacts)
 {
@@ -1278,6 +1307,31 @@ ofpact_from_openflow11(const union ofp_action *a, enum ofp_version version,
     return error;
 }
 
+static enum ofperr
+ofpatch_from_openflow13(const union ofp_action *a, enum ofp_version version,
+        struct ofpbuf *out) {
+    enum ofputil_action_code code;
+    enum ofperr error;
+
+    error = decode_openflow13_action(a, &code);
+    if (error) {
+        return error;
+    }
+
+    switch (code) {
+    case OFPUTIL_ACTION_INVALID:
+#define OFPAT11_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME) case OFPUTIL_##ENUM:
+#define OFPAT12_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME) case OFPUTIL_##ENUM:
+#include "ofp-util.def"
+        OVS_NOT_REACHED();
+
+    case OFPUTIL_OFPAT13_SET_STATE:
+    	ofpact_put_SET_STATE(out)->state =
+    			ntohl(a->set_state.state);
+    	break;
+    }
+}
+
 /* True if an action sets the value of a field
  * in a way that is compatibile with the action set.
  * False otherwise. */
@@ -1303,6 +1357,7 @@ ofpact_is_set_action(const struct ofpact *a)
     case OFPACT_SET_TUNNEL:
     case OFPACT_SET_VLAN_PCP:
     case OFPACT_SET_VLAN_VID:
+    case OFPACT_SET_STATE:
         return true;
     case OFPACT_BUNDLE:
     case OFPACT_CLEAR_ACTIONS:
@@ -1370,6 +1425,7 @@ ofpact_is_allowed_in_actions_set(const struct ofpact *a)
     case OFPACT_SET_VLAN_PCP:
     case OFPACT_SET_VLAN_VID:
     case OFPACT_STRIP_VLAN:
+    case OFPACT_SET_STATE:
         return true;
 
     /* In general these actions are excluded because they are not part of
@@ -1621,6 +1677,7 @@ ovs_instruction_type_from_ofpact_type(enum ofpact_type type)
     case OFPACT_POP_MPLS:
     case OFPACT_SET_TUNNEL:
     case OFPACT_SET_QUEUE:
+    case OFPACT_SET_STATE:
     case OFPACT_POP_QUEUE:
     case OFPACT_FIN_TIMEOUT:
     case OFPACT_RESUBMIT:
@@ -2132,6 +2189,10 @@ ofpact_check__(enum ofputil_protocol *usable_protocols, struct ofpact *a,
 
     case OFPACT_GROUP:
         return 0;
+
+    /*TODO: verifica di consistenza dello state? */
+    case OFPACT_SET_STATE:
+    	return 0;
 
     default:
         OVS_NOT_REACHED();
@@ -2973,6 +3034,12 @@ ofpact_to_openflow12(const struct ofpact *a, struct ofpbuf *out)
     ofpact_to_openflow11(a, out);
 }
 
+static void
+ofpact_to_openflow13(const struct ofpact *a, struct ofpbuf *out)
+{
+	/*TODO*/
+}
+
 /* Converts the 'ofpacts_len' bytes of ofpacts in 'ofpacts' into OpenFlow
  * actions in 'openflow', appending the actions to any existing data in
  * 'openflow'. */
@@ -3152,6 +3219,7 @@ ofpact_outputs_to_port(const struct ofpact *ofpact, ofp_port_t port)
     case OFPACT_GOTO_TABLE:
     case OFPACT_METER:
     case OFPACT_GROUP:
+    case OFPACT_SET_STATE:
     default:
         return false;
     }
@@ -3470,6 +3538,11 @@ ofpact_format(const struct ofpact *a, struct ds *s)
         ds_put_format(s, "set_queue:%"PRIu32,
                       ofpact_get_SET_QUEUE(a)->queue_id);
         break;
+
+    case OFPACT_SET_STATE:
+    	ds_put_format(s, "set_state:%"PRIu32,
+    	                      ofpact_get_SET_STATE(a)->state);
+    	break;
 
     case OFPACT_POP_QUEUE:
         ds_put_cstr(s, "pop_queue");

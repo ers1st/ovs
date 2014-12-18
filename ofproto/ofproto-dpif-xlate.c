@@ -3053,7 +3053,12 @@ do_xlate_actions(const struct ofpact *ofpacts, size_t ofpacts_len,
         case OFPACT_SAMPLE:
             xlate_sample_action(ctx, ofpact_get_SAMPLE(a));
             break;
+
+        /*TODO*/
+        case OFPACT_SET_STATE:
+        	break;
         }
+
     }
 }
 

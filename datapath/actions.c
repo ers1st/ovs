@@ -388,6 +388,11 @@ static int set_sctp(struct sk_buff *skb,
 	return 0;
 }
 
+static int set_state(struct sk_buff *skb,
+		     const struct ovs_key_sctp *sctp_port_key) {
+	/*TODO*/
+}
+
 static int do_output(struct datapath *dp, struct sk_buff *skb, int out_port)
 {
 	struct vport *vport;
@@ -544,6 +549,10 @@ static int execute_set_action(struct sk_buff *skb,
 
 	case OVS_KEY_ATTR_SCTP:
 		err = set_sctp(skb, nla_data(nested_attr));
+		break;
+
+	case OVS_KEY_ATTR_STATE:
+		err = set_state(skb, nla_data(nested_attr));
 		break;
 	}
 

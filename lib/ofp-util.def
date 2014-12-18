@@ -63,6 +63,7 @@ OFPAT13_ACTION(OFPAT13_DEC_NW_TTL,   ofp_action_header,      0, "dec_nw_ttl")
 OFPAT13_ACTION(OFPAT13_SET_FIELD,    ofp12_action_set_field, 1, "set_field")
 OFPAT13_ACTION(OFPAT13_PUSH_PBB,     ofp11_action_push,      0, "push_pbb")
 OFPAT13_ACTION(OFPAT13_POP_PBB,      ofp_action_header,      0, "pop_pbb")
+OFPAT13_ACTION(OFPAT13_SET_STATE,	 ofp13_action_set_state, 0, "set_state")
 
 #ifndef NXAST_ACTION
 #define NXAST_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME)
