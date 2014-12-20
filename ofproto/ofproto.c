@@ -7096,6 +7096,8 @@ ofproto_port_set_realdev(struct ofproto *ofproto, ofp_port_t vlandev_ofp_port,
 static enum ofperr
 handle_state_mod(struct ofconn *ofconn, const struct ofp_header *oh)
 {
+
+	/*TODO davide*/
 	struct ofproto *ofproto = ofconn_get_ofproto(ofconn);
 	struct ofputil_state_mod sm;
 	uint32_t state;
@@ -7145,6 +7147,8 @@ static enum ofperr handle_state_mod__(struct ofproto *ofproto,
 		const struct state_mod_requester *req)
 OVS_EXCLUDED(ofproto_mutex)
 {
+
+	/*TODO davide*/
 	enum ofperr error;
 
 	ovs_mutex_lock(&ofproto_mutex);
@@ -7174,30 +7178,35 @@ OVS_EXCLUDED(ofproto_mutex)
 
 static enum ofperr get_state(struct ofputil_state_mod *sm,
 		uint32_t *state) {
-
+	/*TODO davide*/
 }
 
 static enum ofperr ofproto_check_state(uint32_t *state, struct ofproto *ofproto) {
+	/*TODO davide*/
 
 }
 
 static enum ofperr set_lookup_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
+	/*TODO davide*/
 
 }
 
 static enum ofperr set_update_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
+	/*TODO davide*/
 
 }
 
 static enum ofperr add_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
+	/*TODO davide*/
 
 }
 
 static enum ofperr del_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
+	/*TODO davide*/
 
 }
 
@@ -7206,6 +7215,8 @@ static enum ofperr del_flow_state(struct ofproto *ofproto, struct ofputil_state_
  */
 static enum ofperr
 handle_flag_mod(struct ofconn *ofconn, const struct ofp_header *oh) {
+
+	/*TODO davide*/
 	enum ofperr error;
 	struct ofputil_flag_mod fmod;
 

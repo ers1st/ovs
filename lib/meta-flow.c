@@ -1045,6 +1045,9 @@ mf_is_all_wild(const struct mf_field *mf, const struct flow_wildcards *wc)
     case MFF_TCP_FLAGS:
         return !wc->masks.tcp_flags;
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -1268,6 +1271,9 @@ mf_is_value_valid(const struct mf_field *mf, const union mf_value *value)
     case MFF_MPLS_BOS:
         return !(value->u8 & ~(MPLS_BOS_MASK >> MPLS_BOS_SHIFT));
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -1465,6 +1471,9 @@ mf_get_value(const struct mf_field *mf, const struct flow *flow,
         value->ipv6 = flow->nd_target;
         break;
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -1667,6 +1676,9 @@ mf_set_value(const struct mf_field *mf,
         match_set_nd_target(match, &value->ipv6);
         break;
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -1889,6 +1901,9 @@ mf_set_flow_value(const struct mf_field *mf,
         flow->nd_target = value->ipv6;
         break;
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -2105,6 +2120,9 @@ mf_set_wild(const struct mf_field *mf, struct match *match)
         memset(&match->flow.nd_target, 0, sizeof match->flow.nd_target);
         break;
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -2277,6 +2295,9 @@ mf_set(const struct mf_field *mf,
         match_set_tcp_flags_masked(match, value->be16, mask->be16);
         break;
 
+    case MFF_STATE:
+    case MFF_FLAGS:
+    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();

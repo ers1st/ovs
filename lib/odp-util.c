@@ -779,6 +779,7 @@ odp_flow_key_attr_len(uint16_t type)
     case OVS_KEY_ATTR_ICMPV6: return sizeof(struct ovs_key_icmpv6);
     case OVS_KEY_ATTR_ARP: return sizeof(struct ovs_key_arp);
     case OVS_KEY_ATTR_ND: return sizeof(struct ovs_key_nd);
+    case OVS_KEY_ATTR_STATE: return 4;
 
     case OVS_KEY_ATTR_UNSPEC:
     case __OVS_KEY_ATTR_MAX:
