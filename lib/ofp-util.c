@@ -5888,6 +5888,8 @@ ofputil_action_code_from_ofp13_action(enum ofp13_action_type type)
         return OFPUTIL_##ENUM;
 #include "ofp-util.def"
 
+    case OFPAT13_SET_FLAG:
+    	/*TODO davide*/
     default:
         return OFPUTIL_ACTION_INVALID;
     }
@@ -7599,12 +7601,22 @@ ofputil_decode_state_mod(const struct ofp_header *oh,
     return 0;
 }
 
-/* TODO quando viene usata?? Solo da /utilities/ovs-ofctl?? */
+/* TODO davide */
 struct ofpbuf *
 ofputil_encode_state_mod(const struct ofp_header *oh,
-                                 struct ofputil_state_mod *msg)
+                                 struct ofputil_state_mod *smodm)
 {
+	struct ofpbuf *msg;
+	struct ofp13_state_mod *smod;
 
+	smod->command = smodm->command;
+	smod->cookie = ntohll(smodm->cookie);
+	smod->cookie_mask = ntohll(smodm->cookie_mask);
+	smod->table_id = smodm->table_id;
+	ofpbuf_put(msg, oh, sizeof(struct ofp_header));
+	ofpbuf_put(msg, smod, sizeof(struct ofp13_state_mod));
+
+	return msg;
 }
 
 /* Decodes the OpenFlow (openstate) "flag mod" message in '*oh'
@@ -7635,10 +7647,16 @@ ofputil_decode_flag_mod(const struct ofp_header *oh,
 
     return 0;
 }
-/* TODO quando viene usata?? Solo da /utilities/ovs-ofctl?? */
+/* TODO davide */
 struct ofpbuf *
 ofputil_encode_flag_mod(const struct ofp_header *oh,
-                                 struct ofputil_flag_mod *msg)
+                                 struct ofputil_flag_mod *fmodm)
 {
+	struct ofpbuf *msg;
+	struct ofp13_state_mod *fmod;
 
+	ofpbuf_put(msg, oh, sizeof(struct ofp_header));
+	ofpbuf_put(msg, fmod, sizeof(struct ofp13_state_mod));
+
+	return msg;
 }

@@ -1167,7 +1167,33 @@ ofconn_report_flow_mod(struct ofconn *ofconn,
  * successfully executed by 'ofconn', so that the connmgr can log it. */
 void ofconn_report_state_mod(struct ofconn *ofconn,
 		enum ofp13_state_mod_command command) {
-	/*TODO*/
+    long long int now;
+
+    switch (command) {
+    case OFPSC_SET_L_EXTRACTOR:
+        ofconn->n_modify++;
+        break;
+
+    case OFPSC_SET_U_EXTRACTOR:
+        ofconn->n_modify++;
+    	break;
+
+    case OFPSC_ADD_FLOW_STATE:
+        ofconn->n_add++;
+    	break;
+
+    case OFPSC_DEL_FLOW_STATE:
+    	ofconn->n_delete++;
+    	break;
+    }
+
+    now = time_msec();
+    if (ofconn->next_op_report == LLONG_MAX) {
+        ofconn->first_op = now;
+        ofconn->next_op_report = MAX(now + 10 * 1000, ofconn->op_backoff);
+        ofconn->op_backoff = ofconn->next_op_report + 60 * 1000;
+    }
+    ofconn->last_op = now;
 }
 
 /* Returns true if 'ofconn' has any pending opgroups. */

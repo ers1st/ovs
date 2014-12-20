@@ -1308,7 +1308,7 @@ ofpact_from_openflow11(const union ofp_action *a, enum ofp_version version,
 }
 
 static enum ofperr
-ofpatch_from_openflow13(const union ofp_action *a, enum ofp_version version,
+ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
         struct ofpbuf *out) {
     enum ofputil_action_code code;
     enum ofperr error;
@@ -1318,13 +1318,36 @@ ofpatch_from_openflow13(const union ofp_action *a, enum ofp_version version,
         return error;
     }
 
+    if (version >= OFP12_VERSION) {
+    	/*TODO davide*/
+    }
+
     switch (code) {
     case OFPUTIL_ACTION_INVALID:
+#define OFPAT10_ACTION(ENUM, STRUCT, NAME) case OFPUTIL_##ENUM:
 #define OFPAT11_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME) case OFPUTIL_##ENUM:
 #define OFPAT12_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME) case OFPUTIL_##ENUM:
 #include "ofp-util.def"
         OVS_NOT_REACHED();
 
+    case OFPUTIL_OFPAT13_OUTPUT:
+    case OFPUTIL_OFPAT13_COPY_TTL_OUT:
+    case OFPUTIL_OFPAT13_COPY_TTL_IN:
+    case OFPUTIL_OFPAT13_SET_MPLS_TTL:
+    case OFPUTIL_OFPAT13_DEC_MPLS_TTL:
+    case OFPUTIL_OFPAT13_PUSH_VLAN:
+    case OFPUTIL_OFPAT13_POP_VLAN:
+    case OFPUTIL_OFPAT13_PUSH_MPLS:
+    case OFPUTIL_OFPAT13_POP_MPLS:
+    case OFPUTIL_OFPAT13_SET_QUEUE:
+    case OFPUTIL_OFPAT13_GROUP:
+    case OFPUTIL_OFPAT13_SET_NW_TTL:
+    case OFPUTIL_OFPAT13_DEC_NW_TTL:
+    case OFPUTIL_OFPAT13_SET_FIELD:
+    case OFPUTIL_OFPAT13_PUSH_PBB:
+    case OFPUTIL_OFPAT13_POP_PBB:
+    	/*TODO davide*/
+    	break;
     case OFPUTIL_OFPAT13_SET_STATE:
     	ofpact_put_SET_STATE(out)->state =
     			ntohl(a->set_state.state);
@@ -2557,6 +2580,7 @@ ofpact_to_nxast(const struct ofpact *a, struct ofpbuf *out)
     case OFPACT_GOTO_TABLE:
     case OFPACT_METER:
     case OFPACT_SET_FIELD:
+    case OFPACT_SET_STATE:
         OVS_NOT_REACHED();
     }
 }
@@ -2694,7 +2718,12 @@ ofpact_to_openflow10(const struct ofpact *a, struct ofpbuf *out)
     case OFPACT_SAMPLE:
         ofpact_to_nxast(a, out);
         break;
+
+    case OFPACT_SET_STATE:
+    	/*TODO davide*/
+    	break;
     }
+
 }
 
 /* Converting ofpacts to OpenFlow 1.1. */
@@ -2887,7 +2916,12 @@ ofpact_to_openflow11(const struct ofpact *a, struct ofpbuf *out)
     case OFPACT_SAMPLE:
         ofpact_to_nxast(a, out);
         break;
+
+    case OFPACT_SET_STATE:
+    	/*TODO davide*/
+    	break;
     }
+
 }
 
 /* Output deprecated set actions as set_field actions. */
@@ -3035,9 +3069,14 @@ ofpact_to_openflow12(const struct ofpact *a, struct ofpbuf *out)
 }
 
 static void
-ofpact_to_openflow13(const struct ofpact *a, struct ofpbuf *out)
+ofpacts_to_openflow13(const struct ofpact *a, struct ofpbuf *out)
 {
-	/*TODO*/
+
+	switch ((int)a->type) {
+	case OFPACT_SET_STATE:
+		/*TODO davide*/
+		break;
+	}
 }
 
 /* Converts the 'ofpacts_len' bytes of ofpacts in 'ofpacts' into OpenFlow

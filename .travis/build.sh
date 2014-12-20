@@ -20,9 +20,9 @@ function install_kernel()
 
 function install_dpdk()
 {
-    wget http://www.dpdk.org/browse/dpdk/snapshot/dpdk-1.7.0.tar.gz
-    tar xzvf dpdk-1.7.0.tar.gz > /dev/null
-    cd dpdk-1.7.0
+    wget http://www.dpdk.org/browse/dpdk/snapshot/dpdk-1.6.0.tar.gz
+    tar xzvf dpdk-1.6.0.tar.gz > /dev/null
+    cd dpdk-1.6.0
     find ./ -type f | xargs sed -i 's/max-inline-insns-single=100/max-inline-insns-single=400/'
     sed -ri 's,(CONFIG_RTE_BUILD_COMBINE_LIBS=).*,\1y,' config/common_linuxapp
     make config CC=gcc T=x86_64-native-linuxapp-gcc
