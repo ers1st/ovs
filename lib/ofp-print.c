@@ -501,6 +501,7 @@ ofputil_action_bitmap_to_name(uint32_t bit)
     case OFPUTIL_A_GROUP:          return "GROUP";
     case OFPUTIL_A_SET_NW_TTL:     return "SET_NW_TTL";
     case OFPUTIL_A_DEC_NW_TTL:     return "DEC_NW_TTL";
+    case OFPUTIL_A_SET_STATE:	   return "SET_STATE";
     }
 
     return NULL;
@@ -2789,6 +2790,34 @@ ofp_print_bundle_add(struct ds *s, const struct ofp_header *oh, int verbosity)
 }
 
 static void
+ofp_print_state_mod(struct ds *s, const struct ofp_header *oh) {
+
+	/*TODO davide*/
+    int error;
+    struct ofputil_state_mod smod;
+
+    error = ofputil_decode_state_mod(oh, &smod);
+    if (error) {
+        ofp_print_error(s, error);
+        return;
+    }
+
+    ds_put_char(s, '\n');
+
+    ds_put_format(s, " table_id=%i",  (int)smod.table_id);
+    switch (smod.command) {
+    	case OFPSC_SET_L_EXTRACTOR:
+    		break;
+    	case OFPSC_SET_U_EXTRACTOR:
+    		break;
+    	case OFPSC_ADD_FLOW_STATE:
+    		break;
+    	case OFPSC_DEL_FLOW_STATE:
+    		break;
+    }
+}
+
+static void
 ofp_to_string__(const struct ofp_header *oh, enum ofpraw raw,
                 struct ds *string, int verbosity)
 {
@@ -3046,6 +3075,12 @@ ofp_to_string__(const struct ofp_header *oh, enum ofpraw raw,
     case OFPTYPE_BUNDLE_ADD_MESSAGE:
         ofp_print_bundle_add(string, msg, verbosity);
         break;
+
+    case OFPTYPE_FLAG_MOD:
+    	/*TODO davide*/
+    case OFPTYPE_STATE_MOD:
+    	ofp_print_state_mod(string, msg);
+    	break;
     }
 }
 
