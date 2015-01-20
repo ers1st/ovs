@@ -57,6 +57,7 @@
 #include "seq.h"
 #include "shash.h"
 #include "sset.h"
+#include "state_table.h"
 #include "timeval.h"
 #include "unixctl.h"
 #include "util.h"
@@ -142,6 +143,7 @@ struct dp_netdev {
     struct ovs_mutex flow_mutex;
     struct classifier cls;      /* Classifier.  Protected by cls.rwlock. */
     struct hmap flow_table OVS_GUARDED; /* Flow table. */
+    struct state_table state_table; /* State table. */
 
     /* Queues.
      *
@@ -2026,8 +2028,14 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
         ofpbuf_delete(packet);
         return;
     }
+
     miniflow_initialize(&key.flow, key.buf);
     miniflow_extract(packet, md, &key.flow);
+
+    /* Do state lookup and set metadata. */
+    struct state_entry *state_entry;
+    state_entry = state_table_lookup(dp->state_table, &key.flow);
+    key.flow.state = state_entry->state; //TODO: errato, non c'è un membro state!
 
     netdev_flow = dp_netdev_lookup_flow(dp, &key.flow);
     if (netdev_flow) {

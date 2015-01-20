@@ -64,7 +64,7 @@ struct pkt_metadata {
 };
 
 #define PKT_METADATA_INITIALIZER(PORT) \
-    (struct pkt_metadata){ 0, 0, { 0, 0, 0, 0, 0, 0}, 0, 0, {(PORT)} }
+    (struct pkt_metadata){ 0, 0, { 0, 0, 0, 0, 0, 0}, 0, 0, {(PORT)}, 0 }
 
 bool dpid_from_string(const char *s, uint64_t *dpidp);
 

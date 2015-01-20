@@ -143,7 +143,7 @@ enum ofp13_flow_mod_flags {
 /* OpenFlow 1.3 specific capabilities
  * (struct ofp_switch features, member capabilities). */
 enum ofp13_capabilities {
-    OFPC13_OPENSTATE      = 1 << 9 /* OpenState statefull datapath. */
+    OFPC13_OPENSTATE      = 1 << 9 /* OpenState stateful datapath. */
 };
 
 /* Common header for all meter bands */

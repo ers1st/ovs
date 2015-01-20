@@ -38,6 +38,7 @@
 #include "odp-util.h"
 #include "random.h"
 #include "unaligned.h"
+#include "state-table.h"
 
 COVERAGE_DEFINE(flow_extract);
 COVERAGE_DEFINE(miniflow_malloc);
@@ -380,8 +381,9 @@ miniflow_extract(struct ofpbuf *packet, const struct pkt_metadata *md,
         miniflow_push_uint32_check(mf, pkt_mark, md->pkt_mark);
         miniflow_push_uint32_check(mf, recirc_id, md->recirc_id);
         miniflow_push_uint32(mf, in_port, odp_to_u32(md->in_port.odp_port));
-        miniflow_push_uint32_check(mf, state, md->state);
     }
+    /* Stateful processing is requested in any case; set default state. */
+    miniflow_push_uint32(mf, state, STATE_DEFAULT);
 
     /* Initialize packet's layer pointer and offsets. */
     l2 = data;
