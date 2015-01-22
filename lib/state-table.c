@@ -1,13 +1,13 @@
 #include "state-table.h"
 
-u32 __extract_hash(struct key_extractor *, struct sw_flow_key *, 
+void __extract_key(struct key_extractor *, struct sw_flow_key *, 
 	struct sk_buff *);
 
-void miniflow_set_state(struct miniflow *flow, uint32_t state)
+void miniflow_set_state(struct miniflow *flow, struct state_entry *entry)
 {
 	*(miniflow_get_u32_values(flow) +
             count_1bits(flow->map & ((UINT64_C(1) << 
-            	offsetof(struct flow, state)) - 1))) = state;
+            	offsetof(struct flow, state)) - 1))) = entry->state;
 }
 
 struct state_table *state_table_create(void) 
@@ -31,7 +31,8 @@ void state_table_destroy(struct state_table *table)
     free(table);
 }
 
-u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
+void __extract_key(u32 **key, uint32_t *size, struct key_extractor *extractor, 
+	struct miniflow *flow)
 {
 	/** 
 	 * TODO: Inserire controlli sul protocollo effettivo del pacchetto.  Alcuni
@@ -40,7 +41,7 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
 	 */
 	const int OXM_VECTOR_SIZE = extractor->field_count + 
 		OXM_VECTOR_ADDITIONAL_SIZE;
-    u32 oxm_vector[OXM_VECTOR_SIZE];
+    u32 *oxm_vector = xmalloc(sizeof(u32) * OXM_VECTOR_SIZE);
     int i, j, k;
 
     for (i = 0; i < extractor->field_count && j < OXM_VECTOR_SIZE; i++, j++) {
@@ -268,8 +269,9 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
     		oxm_vector[j] = 0;
     	}
     }
-
-    return arch_fast_hash2(oxm_vector, --j, 0);
+    *key = oxm_vector;
+    *size = --j;
+    //return arch_fast_hash2(oxm_vector, --j, 0);
 }
 
 /* Having the read_key, look for the state value inside the state table. */
@@ -277,12 +279,14 @@ struct state_entry *state_table_lookup(struct state_table *table,
 	struct miniflow *flow)
 {
 	struct state_entry * e = NULL;	
-	uint32_t key;
+	u32 *key;
+	uint32_t key_size;
 
-    key = __extract_hash(&table->read_key, flow);
+    key = __extract_key(&key, &key_size, &table->read_key, flow);
 
-	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, key, &table->state_entries) {
-			if (key == e->key) {
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, arch_fast_hash2(key, key_size, 0), 
+		&table->state_entries) {
+			if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
 				VLOG_WARN_RL(&rl, "Found corresponding state %u", e->state);
 				return e;
 			}
@@ -295,24 +299,25 @@ struct state_entry *state_table_lookup(struct state_table *table,
 	else
 		return e; //TODO: Che significa? 
 }
-
-//TODO
-/* having the state value  */
-void state_table_write_state(struct state_entry *entry, struct packet *pkt) {
-	struct  ofl_match_tlv *f;
+/* FUNZIONE SOSTITUITA DA MINIFLOW_SET_STATE. */
+// /* having the state value  */
+// void state_table_write_state(struct state_entry *entry, struct packet *pkt) {
+// 	struct  ofl_match_tlv *f;
     
-	HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv, 
-		hmap_node, hash_int(OXM_OF_STATE,0), &pkt->handle_std->match.match_fields) {
-                uint32_t *state = (uint32_t*) f->value;
-                *state = (*state & 0x0) | (entry->state);
-    }
-}
+// 	HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv, 
+// 		hmap_node, hash_int(OXM_OF_STATE,0), &pkt->handle_std->match.match_fields) {
+//                 uint32_t *state = (uint32_t*) f->value;
+//                 *state = (*state & 0x0) | (entry->state);
+//     }
+// }
 
-void state_table_del_state(struct state_table *table, uint32_t key) {
+void state_table_del_state(struct state_table *table, u32 *key, 
+	uint32_t key_size) {
 	struct state_entry *e;
-	int found = 0;
-	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, key, &table->state_entries) {
-		if (key == e->key) {
+	bool found = 0;
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, arch_fast_hash2(key, key_size, 0), 
+		&table->state_entries) {
+		if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
 			found = 1;
 			break;
 		}
@@ -338,36 +343,39 @@ void state_table_set_extractor(struct state_table *table,
 	memcpy(dest->fields, ke->fields, 4 * ke->field_count);
 }
 
-//TODO
-void state_table_set_state(struct state_table *table, struct packet *pkt, 
-	uint32_t state, uint8_t *k, uint32_t len) {
-	uint8_t key[MAX_STATE_KEY_LEN] = {0};	
+void state_table_set_state(struct state_table *table, struct miniflow *flow, 
+	uint32_t state, u32 *k, uint32_t k_size) {
+	u32 *key;
+	uint32_t key_size, hash_key;	
 	struct state_entry *e;
 
-	if (pkt) {
-		__extract_hash(key, &table->write_key, pkt);
-                                        int h;
-                                        printf("ethernet address for write key is:");
-                                        for (h=0;h<6;h++){
-                                        printf("%02X", key[h]);}
-                                        printf("\n");
+	if (flow) {
+		__extract_key(&key, &key_size, &table->write_key, flow);
+        //                                int h;
+        //                                printf("ethernet address for write key is:");
+        //                                for (h=0;h<6;h++){
+        //                                printf("%02X", key[h]);}
+        //                                printf("\n");
 	} else {
-		memcpy(key, k, MAX_STATE_KEY_LEN);
-	        printf("state table no pkt exist \n");
+		key = k;
+		key_size = k_size;
+	    printf("state table no pkt exist \n");
 	}
-	
-	HMAP_FOR_EACH_WITH_HASH(e, struct state_entry, 
-		hmap_node, hash_bytes(key, MAX_STATE_KEY_LEN, 0), &table->state_entries){
-			if (!memcmp(key, e->key, MAX_STATE_KEY_LEN)){
-				VLOG_WARN_RL(LOG_MODULE, &rl, "state value is %u updated to hash map", state);
-				e->state = state;
-				return;
-			}
+
+	hash_key = arch_fast_hash2(key, key_size, 0);
+
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, hash_key, &table->state_entries) {
+		if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
+			VLOG_WARN_RL(&rl, "state value is %u updated to hash map", state);
+			e->state = state;
+			return;
+		}
 	}
 
 	e = xmalloc(sizeof(struct state_entry));
-	memcpy(e->key, key, MAX_STATE_KEY_LEN);
+	e->key = key;
+	e->key_size = key_size;
 	e->state = state;
-	VLOG_WARN_RL(LOG_MODULE, &rl, "state value is %u inserted to hash map", e->state);
-        hmap_insert(&table->state_entries, &e->hmap_node, hash_bytes(key, MAX_STATE_KEY_LEN, 0));
+    hmap_insert(&table->state_entries, &e->hmap_node, hash_key);
+	VLOG_WARN_RL(&rl, "state value is %u inserted to hash map", e->state);
 }

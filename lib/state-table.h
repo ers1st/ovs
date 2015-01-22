@@ -44,7 +44,8 @@ struct key_extractor {
 
 struct state_entry {
     struct hmap_node    hmap_node;
-    uint32_t            key;
+    u32                 key;
+    uint32_t            key_size;
     uint32_t            state;
 };
 
