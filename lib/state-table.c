@@ -3,6 +3,13 @@
 u32 __extract_hash(struct key_extractor *, struct sw_flow_key *, 
 	struct sk_buff *);
 
+void miniflow_set_state(struct miniflow *flow, uint32_t state)
+{
+	*(miniflow_get_u32_values(flow) +
+            count_1bits(flow->map & ((UINT64_C(1) << 
+            	offsetof(struct flow, state)) - 1))) = state;
+}
+
 struct state_table *state_table_create(void) 
 {
     struct state_table *table = xmalloc(sizeof(struct state_table));
@@ -39,8 +46,7 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
     for (i = 0; i < extractor->field_count && j < OXM_VECTOR_SIZE; i++, j++) {
     	switch (extractor->fields[i]) {
     	case OFPXMT12_OFB_IN_PORT:
-    		//TODO
-    		oxm_vector[j] = (u32) key->in_port;
+    		oxm_vector[j] = MINIFLOW_GET_U32(flow, in_port);
     		break;
 
 	    case OFPXMT12_OFB_IN_PHY_PORT:
@@ -52,19 +58,22 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
 	    	j++;
 	    	break;
 
-	    case OFPXMT12_OFB_ETH_DST: //TODO
-	    	memcpy(oxm_vector + j, )
-	    	for (k = 0; k < ETH_ALEN; k++) {
-	    		MINIFLOW_GET_TYPE(flow, uint8_t, offsetof(struct flow, FIELD))
-	    	}
-	    	
-	    	memcpy(oxm_vector + j, key->eth.dst, ETH_ALEN);
-	    	j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
+	    case OFPXMT12_OFB_ETH_DST:
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, dl_dst));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, dl_dst) + 4);
+	    	// memcpy(oxm_vector + j, key->eth.dst, ETH_ALEN);
+	    	// j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;
 
-	    case OFPXMT12_OFB_ETH_SRC: //TODO
-	    	memcpy(oxm_vector + j, key->eth.src, ETH_ALEN);
-	    	j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
+	    case OFPXMT12_OFB_ETH_SRC:
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, dl_src));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, dl_src) + 4);
+	    	//memcpy(oxm_vector + j, key->eth.src, ETH_ALEN);
+	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;   
 	    
 	    case OFPXMT12_OFB_ETH_TYPE:
@@ -76,7 +85,8 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
 	    	break;
 
 	    case OFPXMT12_OFB_VLAN_PCP:
-	    	oxm_vector[j] = (u32) vlan_tci_to_pcp(MINIFLOW_GET_BE16(flow, vlan_tci));
+	    	oxm_vector[j] = (u32) vlan_tci_to_pcp(MINIFLOW_GET_BE16(flow, 
+	    		vlan_tci));
 	    	break;
 	    
 	    case OFPXMT12_OFB_IP_DSCP:
@@ -128,24 +138,46 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
 	    	oxm_vector[j] = (u32) ntohl(MINIFLOW_GET_BE32(flow, nw_dst));
 	    	break;  
 	    
-	    case OFPXMT12_OFB_ARP_SHA://TODO
-	    	memcpy(oxm_vector + j, key->ipv4.arp.sha, ETH_ALEN);
-	    	j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
+	    case OFPXMT12_OFB_ARP_SHA:
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, arp_sha));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, arp_sha) + 4);
+	    	//memcpy(oxm_vector + j, key->ipv4.arp.sha, ETH_ALEN);
+	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break; 
 	    
-	    case OFPXMT12_OFB_ARP_THA://TODO
-	    	memcpy(oxm_vector + j, key->ipv4.arp.tha, ETH_ALEN);
-	    	j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
+	    case OFPXMT12_OFB_ARP_THA:
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, arp_tha));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, arp_tha) + 4);
+	    	//memcpy(oxm_vector + j, key->ipv4.arp.tha, ETH_ALEN);
+	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;  
 	    
-	    case OFPXMT12_OFB_IPV6_SRC://TODO
-	    	memcpy(oxm_vector + j, key->ipv6.addr.src.s6addr, 16);
-	    	j += 3;
+	    case OFPXMT12_OFB_IPV6_SRC:
+	  		for (k = 0; k < 4; k++) {
+	    		oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, ipv6_src) + k * 4);
+	    		if (k != 3) {
+	    			j++;
+	    		}
+	    	}
+	    	//memcpy(oxm_vector + j, key->ipv6.addr.src.s6addr, 16);
+	    	//j += 3;
 	    	break;
 	    
-	    case OFPXMT12_OFB_IPV6_DST://TODO
-	    	memcpy(oxm_vector + j, key->ipv6.addr.dst.s6addr, 16);
-	    	j += 3;
+	    case OFPXMT12_OFB_IPV6_DST:
+	    	for (k = 0; k < 4; k++) {
+	    		oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, ipv6_dst) + k * 4);
+	    		if (k != 3) {
+	    			j++;
+	    		}
+	    	}
+	    	//memcpy(oxm_vector + j, key->ipv6.addr.dst.s6addr, 16);
+	    	//j += 3;
 	    	break;  
 	    
 	    case OFPXMT12_OFB_IPV6_FLABEL:
@@ -161,18 +193,33 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
     		break; 
 	    
 	    case OFPXMT12_OFB_IPV6_ND_TARGET://TODO
-	    	memcpy(oxm_vector + j, key->ipv6.nd.target.s6addr, 16);
-	    	j += 3;
+		    for (k = 0; k < 4; k++) {
+	    		oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, nd_target) + k * 4);
+	    		if (k != 3) {
+	    			j++;
+	    		}
+	    	}
+	    	//memcpy(oxm_vector + j, key->ipv6.nd.target.s6addr, 16);
+	    	//j += 3;
 	    	break;    	    	
 	    
-	    case OFPXMT12_OFB_IPV6_ND_SLL://TODO
-			memcpy(oxm_vector + j, key->ipv6.nd.sll, ETH_ALEN);
-	    	j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1; 
+	    case OFPXMT12_OFB_IPV6_ND_SLL:
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, arp_sha));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, arp_sha) + 4);
+			//memcpy(oxm_vector + j, key->ipv6.nd.sll, ETH_ALEN);
+	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1; 
 	    	break;
 	    
-	    case OFPXMT12_OFB_IPV6_ND_TLL://TODO
-	    	memcpy(oxm_vector + j, key->ipv6.nd.tll, ETH_ALEN);
-	    	j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
+	    case OFPXMT12_OFB_IPV6_ND_TLL:
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, arp_tha));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, arp_tha) + 4);
+	    	//memcpy(oxm_vector + j, key->ipv6.nd.tll, ETH_ALEN);
+	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;   
 	    
 	    case OFPXMT12_OFB_MPLS_LABEL:
@@ -191,7 +238,11 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
 	    	//TODO_fede   
 	    
 	    case OFPXMT13_OFB_TUNNEL_ID:
-	    	//TODO_fede   
+	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
+	    		offsetof(struct flow, tunnel));
+	    	oxm_vector[++j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, tunnel) + 4);
+	    	break;  
 	    
 	    case OFPXMT13_OFB_IPV6_EXTHDR:
 	    	//TODO_fede 
@@ -201,7 +252,9 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
     		break;
 	    
 	    case OFPXMT13_OFB_FLAGS:
-	    	//TODO_fede     
+	    	oxm_vector[j] = (u32) MINIFLOW_GET_TYPE(flow, uint16_t, 
+	    		offsetof(struct flow, tunnel) + offsetof(struct flow_tnl, flags));
+	    	break;    
 	    
 	    case OFPXMT14_OFB_PBB_UCA:
 	    	//TODO_fede  
@@ -219,29 +272,28 @@ u32 __extract_hash(struct key_extractor *extractor, struct miniflow *flow)
     return arch_fast_hash2(oxm_vector, --j, 0);
 }
 
-//TODO
-/*having the read_key, look for the state vaule inside the state_table */
-struct state_entry * state_table_lookup(struct state_table* table, struct packet *pkt) {
+/* Having the read_key, look for the state value inside the state table. */
+struct state_entry *state_table_lookup(struct state_table *table, 
+	struct miniflow *flow)
+{
 	struct state_entry * e = NULL;	
-	uint8_t key[MAX_STATE_KEY_LEN] = {0};
+	uint32_t key;
 
-    __extract_hash(key, &table->read_key, pkt);
+    key = __extract_hash(&table->read_key, flow);
 
-	HMAP_FOR_EACH_WITH_HASH(e, struct state_entry, 
-		hmap_node, hash_bytes(key, MAX_STATE_KEY_LEN, 0), &table->state_entries){
-			if (!memcmp(key, e->key, MAX_STATE_KEY_LEN)){
-				VLOG_WARN_RL(LOG_MODULE, &rl, "found corresponding state %u",e->state);
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, key, &table->state_entries) {
+			if (key == e->key) {
+				VLOG_WARN_RL(&rl, "Found corresponding state %u", e->state);
 				return e;
 			}
 	}
 
-	if (e == NULL)
-	{	 
-		VLOG_WARN_RL(LOG_MODULE, &rl, "not found the corresponding state value\n");
+	if (e == NULL) {
+		VLOG_WARN_RL(&rl, "Not found the corresponding state value\n");
 		return &table->default_state_entry;
 	}
-	else 
-		return e;
+	else
+		return e; //TODO: Che significa? 
 }
 
 //TODO
@@ -250,26 +302,25 @@ void state_table_write_state(struct state_entry *entry, struct packet *pkt) {
 	struct  ofl_match_tlv *f;
     
 	HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv, 
-		hmap_node, hash_int(OXM_OF_STATE,0), &pkt->handle_std->match.match_fields){
+		hmap_node, hash_int(OXM_OF_STATE,0), &pkt->handle_std->match.match_fields) {
                 uint32_t *state = (uint32_t*) f->value;
                 *state = (*state & 0x0) | (entry->state);
     }
 }
 
-//TODO
-void state_table_del_state(struct state_table *table, uint8_t *key, uint32_t len) {
+void state_table_del_state(struct state_table *table, uint32_t key) {
 	struct state_entry *e;
 	int found = 0;
-
-	HMAP_FOR_EACH_WITH_HASH(e, struct state_entry, 
-		hmap_node, hash_bytes(key, MAX_STATE_KEY_LEN, 0), &table->state_entries){
-			if (!memcmp(key, e->key, MAX_STATE_KEY_LEN)){
-				found = 1;
-				break;
-			}
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, key, &table->state_entries) {
+		if (key == e->key) {
+			found = 1;
+			break;
+		}
 	}
-	if (found)
-		hmap_remove_and_shrink(&table->state_entries, &e->hmap_node);
+	if (found) {
+		hmap_remove(&table->state_entries, &e->hmap_node);
+		hmap_shrink(&table->state_entries);
+	}
 }
 
 void state_table_set_extractor(struct state_table *table, 
@@ -278,10 +329,10 @@ void state_table_set_extractor(struct state_table *table,
 	if (update) {
 		dest = &table->write_key;
                 printf("writing key\n");
-		} else {
+	} else {
 		dest = &table->read_key;
                 printf("reading key\n");
-		}
+	}
 	dest->field_count = ke->field_count;
 
 	memcpy(dest->fields, ke->fields, 4 * ke->field_count);

@@ -2035,7 +2035,7 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
     /* Do state lookup and set metadata. */
     struct state_entry *state_entry;
     state_entry = state_table_lookup(dp->state_table, &key.flow);
-    key.flow.state = state_entry->state; //TODO: errato, non c'è un membro state!
+    miniflow_set_state(&key.flow, state_entry->state);
 
     netdev_flow = dp_netdev_lookup_flow(dp, &key.flow);
     if (netdev_flow) {
