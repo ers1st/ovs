@@ -1380,8 +1380,8 @@ ofpact_is_set_action(const struct ofpact *a)
     case OFPACT_SET_TUNNEL:
     case OFPACT_SET_VLAN_PCP:
     case OFPACT_SET_VLAN_VID:
-    case OFPACT_SET_STATE:
         return true;
+    case OFPACT_SET_STATE:
     case OFPACT_BUNDLE:
     case OFPACT_CLEAR_ACTIONS:
     case OFPACT_CONTROLLER:

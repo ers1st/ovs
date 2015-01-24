@@ -1,11 +1,10 @@
 #ifndef STATE_TABLE_H
 #define STATE_TABLE_H 1
 
+#include "flow.h"
 #include "hmap.h"
 #include "packets.h"
-
-#include <linux/slab.h>
-#include <linux/kernel.h>
+#include "vlog.h"
 
 #define MAX_EXTRACTION_FIELD_COUNT 8
 #define MAX_STATE_KEY_LEN 48
@@ -31,40 +30,39 @@ const uint8_t ecn_mask =  !0x3;
  *   - OFPXMT12_OFB_IPV6_ND_SLL:    ETH_ALEN B
  *   - OFPXMT12_OFB_IPV6_ND_TLL:    ETH_ALEN B
  * In the worst case we'll need 6*ETH_ALEN + 16*3 - 4*9 = 48 additional bytes.
- * oxm_vector[] is composed by u32, so additional size is 48/4 = 12.
+ * oxm_vector[] is composed by uint32_t, so additional size is 48/4 = 12.
  */
- /*
 #define OXM_VECTOR_ADDITIONAL_SIZE 12
-*/
+
 struct key_extractor {
-    uint32_t    field_count;
-    uint32_t    fields[MAX_EXTRACTION_FIELD_COUNT]; /*  from enum 
+    uint32_t field_count;
+    uint32_t fields[MAX_EXTRACTION_FIELD_COUNT]; /*  from enum 
                                                     oxm12_ofb_match_fields */
 };
 
 struct state_entry {
-    struct hmap_node    hmap_node;
-    u32                 key;
-    uint32_t            key_size;
-    uint32_t            state;
+    struct hmap_node hmap_node;
+    uint32_t *key;
+    uint32_t key_size;
+    uint32_t state;
 };
 
 struct state_table {
-    struct key_extractor    read_key;
-    struct key_extractor    write_key;
-    struct hmap             state_entries; 
-    struct state_entry      default_state_entry;
+    struct key_extractor read_key;
+    struct key_extractor write_key;
+    struct hmap state_entries; 
+    struct state_entry default_state_entry;
 };
 
 
 struct state_table *state_table_create(void);
 void state_table_destroy(struct state_table *);
-struct state_entry *state_table_lookup(struct state_table *, struct ofpbuf *);
-void state_table_write_state(struct state_entry *, struct ofpbuf *);
-void state_table_set_state(struct state_table *, struct ofpbuf *, uint32_t, 
-    uint8_t *, uint32_t);
+struct state_entry *state_table_lookup(struct state_table *, struct miniflow *);
+void state_table_write_state(struct state_entry *, struct miniflow *);
+void state_table_set_state(struct state_table *, struct miniflow *, uint32_t, 
+    uint32_t *, uint32_t);
 void state_table_set_extractor(struct state_table *, struct key_extractor *, 
-    int);
-void state_table_del_state(struct state_table *, uint8_t *, uint32_t);
+    bool);
+void state_table_del_state(struct state_table *, uint32_t *, uint32_t);
 
 #endif /* state_table.h */

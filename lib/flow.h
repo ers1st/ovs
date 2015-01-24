@@ -26,6 +26,7 @@
 #include "openflow/openflow.h"
 #include "packets.h"
 #include "hash.h"
+#include "hmap.h"
 #include "util.h"
 
 struct dpif_flow_stats;

@@ -213,6 +213,7 @@ odp_execute_actions__(void *dp, struct ofpbuf *packet, bool steal,
         case OVS_ACTION_ATTR_OUTPUT:
         case OVS_ACTION_ATTR_USERSPACE:
         case OVS_ACTION_ATTR_RECIRC:
+        case OVS_ACTION_ATTR_SET_STATE:
             if (dp_execute_action) {
                 /* Allow 'dp_execute_action' to steal the packet data if we do
                  * not need it any more. */

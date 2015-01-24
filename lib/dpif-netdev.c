@@ -57,7 +57,7 @@
 #include "seq.h"
 #include "shash.h"
 #include "sset.h"
-#include "state_table.h"
+#include "state-table.h"
 #include "timeval.h"
 #include "unixctl.h"
 #include "util.h"
@@ -143,7 +143,13 @@ struct dp_netdev {
     struct ovs_mutex flow_mutex;
     struct classifier cls;      /* Classifier.  Protected by cls.rwlock. */
     struct hmap flow_table OVS_GUARDED; /* Flow table. */
+
+    /* OpenState.
+     * 
+     * Data structures needed for stateful processing of packets.
+     */
     struct state_table state_table; /* State table. */
+    uint32_t flags; /* OpenState flags, aka global states. */
 
     /* Queues.
      *
@@ -2034,8 +2040,8 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
 
     /* Do state lookup and set metadata. */
     struct state_entry *state_entry;
-    state_entry = state_table_lookup(dp->state_table, &key.flow);
-    miniflow_set_state(&key.flow, state_entry);
+    state_entry = state_table_lookup(&dp->state_table, &key.flow);
+    state_table_write_state(state_entry, &key.flow);
 
     netdev_flow = dp_netdev_lookup_flow(dp, &key.flow);
     if (netdev_flow) {
@@ -2214,6 +2220,21 @@ dp_execute_cb(void *aux_, struct ofpbuf *packet,
             VLOG_WARN("Packet dropped. Max recirculation depth exceeded.");
         }
         break;
+
+    case OVS_ACTION_ATTR_SET_STATE: {
+        struct pkt_metadata set_state_md;
+        uint32_t state;
+        struct miniflow *flow;
+        
+        set_state_md = *md;
+        state = nl_attr_get_u32(a);
+        flow = xmalloc(sizeof *flow);
+
+        miniflow_extract(packet, &set_state_md, flow);
+        state_table_set_state(&aux->dp->state_table, flow, state, NULL, 0);
+        miniflow_destroy(flow);
+        break;
+    }
 
     case OVS_ACTION_ATTR_PUSH_VLAN:
     case OVS_ACTION_ATTR_POP_VLAN:

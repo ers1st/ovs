@@ -388,11 +388,6 @@ static int set_sctp(struct sk_buff *skb,
 	return 0;
 }
 
-static int set_state(struct sk_buff *skb,
-		     const struct ovs_key_sctp *sctp_port_key) {
-	/*TODO*/
-}
-
 static int do_output(struct datapath *dp, struct sk_buff *skb, int out_port)
 {
 	struct vport *vport;
@@ -550,10 +545,6 @@ static int execute_set_action(struct sk_buff *skb,
 	case OVS_KEY_ATTR_SCTP:
 		err = set_sctp(skb, nla_data(nested_attr));
 		break;
-
-	case OVS_KEY_ATTR_STATE:
-		err = set_state(skb, nla_data(nested_attr));
-		break;
 	}
 
 	return err;
@@ -579,6 +570,11 @@ static int execute_recirc(struct datapath *dp, struct sk_buff *skb,
 	ovs_dp_process_packet_with_key(skb, &recirc_key, true);
 
 	return 0;
+}
+
+static int execute_set_state(struct datapath *dp, struct sk_buff *skb,
+				 const struct nlattr *a) {
+	/*TODO*/
 }
 
 /* Execute a list of actions against 'skb'. */
@@ -649,6 +645,10 @@ static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 
 		case OVS_ACTION_ATTR_SAMPLE:
 			err = sample(dp, skb, a);
+			break;
+
+		case OVS_ACTION_ATTR_SET_STATE:
+			err = execute_set_state(); //TODO_fede: implementa
 			break;
 		}
 

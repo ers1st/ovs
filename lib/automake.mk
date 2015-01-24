@@ -194,6 +194,8 @@ lib_libopenvswitch_la_SOURCES = \
 	lib/sort.h \
 	lib/sset.c \
 	lib/sset.h \
+	lib/state-table.c \
+	lib/state-table.h \
 	lib/stp.c \
 	lib/stp.h \
 	lib/stream-fd.h \
