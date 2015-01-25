@@ -21,17 +21,11 @@ function install_kernel()
 function install_dpdk()
 {
     wget http://www.dpdk.org/browse/dpdk/snapshot/dpdk-1.7.0.tar.gz
-    echo "Debug 1"
     tar xzvf dpdk-1.7.0.tar.gz > /dev/null
-    echo "Debug 2"
-    cd dpdk-1.6.0
-    echo "Debug 3"
+    cd dpdk-1.7.0
     find ./ -type f | xargs sed -i 's/max-inline-insns-single=100/max-inline-insns-single=400/'
-    echo "Debug 4"
     sed -ri 's,(CONFIG_RTE_BUILD_COMBINE_LIBS=).*,\1y,' config/common_linuxapp
-    echo "Debug 5"
     make config CC=gcc T=x86_64-native-linuxapp-gcc
-    echo "Debug 6"
     make CC=gcc RTE_KERNELDIR=$KERNELSRC
     echo "Installed DPDK source in $(pwd)"
     cd ..
