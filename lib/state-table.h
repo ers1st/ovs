@@ -10,7 +10,6 @@
 
 #define STATE_DEFAULT 0
 
-//TODO: sostituisci packet con ofpbuf!
 /** 
  * oxm_vector length is greater than extractor->field_count; that is because
  * fields like ethernet addresses are greater than 32 bits, and so they are
@@ -57,9 +56,9 @@ void state_table_destroy(struct state_table *);
 struct state_entry *state_table_lookup(struct state_table *, struct miniflow *);
 void state_table_write_state(struct state_entry *, struct miniflow *);
 void state_table_set_state(struct state_table *, struct miniflow *, uint32_t, 
-    uint32_t *, uint32_t);
+                           uint32_t *, uint32_t);
 void state_table_set_extractor(struct state_table *, struct key_extractor *, 
-    bool);
+                               bool);
 void state_table_del_state(struct state_table *, uint32_t *, uint32_t);
 
 #endif /* state_table.h */

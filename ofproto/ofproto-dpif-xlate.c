@@ -3056,8 +3056,9 @@ do_xlate_actions(const struct ofpact *ofpacts, size_t ofpacts_len,
 
         /* TODO_fede: è necessario htonl? */
         case OFPACT_SET_STATE:
-            /* TODO: Devo prima estrarre il next state? */
-            flow->state = htonl(ofpact_get_SET_STATE(a)->state);
+            /* TODO_match: Devo prima estrarre il next state? */
+            /* Dovrei fare xlate_state_action() */
+            //flow->state = htonl(ofpact_get_SET_STATE(a)->state);
         	break;
         }
 

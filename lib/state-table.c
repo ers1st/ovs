@@ -23,7 +23,7 @@ VLOG_DEFINE_THIS_MODULE(state_table); /* Should be removed after debugging. */
  * 		jhash_words()		with 		arch_fast_hash2()
  */
 static void __extract_key(uint32_t **, uint32_t *, struct key_extractor *, 
-	               struct miniflow *);
+	                      struct miniflow *);
 static inline uint32_t *miniflow_get_values_writable(struct miniflow *);
 static inline uint32_t *miniflow_get_u32_values_writable(struct miniflow *);
 
@@ -37,7 +37,6 @@ struct state_table *state_table_create(void)
     table->state_entries = (struct hmap) 
     	HMAP_INITIALIZER(&table->state_entries);
 
-	/* default state entry */
 	table->default_state_entry.state = STATE_DEFAULT;
 	
     return table;

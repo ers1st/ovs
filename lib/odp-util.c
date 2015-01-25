@@ -1061,6 +1061,7 @@ format_odp_key_attr(const struct nlattr *a, const struct nlattr *ma,
     case OVS_KEY_ATTR_SKB_MARK:
     case OVS_KEY_ATTR_DP_HASH:
     case OVS_KEY_ATTR_RECIRC_ID:
+    case OVS_KEY_ATTR_STATE:
         ds_put_format(ds, "%#"PRIx32, nl_attr_get_u32(a));
         if (!is_exact) {
             ds_put_format(ds, "/%#"PRIx32, nl_attr_get_u32(ma));
@@ -1421,9 +1422,6 @@ format_odp_key_attr(const struct nlattr *a, const struct nlattr *ma,
             }
         }
         break;
-    }
-    case OVS_KEY_ATTR_STATE: {
-        /* TODO: to be defined. */
     }
     case OVS_KEY_ATTR_UNSPEC:
     case __OVS_KEY_ATTR_MAX:

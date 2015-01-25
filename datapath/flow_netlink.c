@@ -730,7 +730,7 @@ static int ovs_key_from_nlattrs(struct sw_flow_match *match, u64 attrs,
 
 	// if (attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
 	// 		const struct ovs_key_state *state_key;
-	// 		/*TODO*/
+	// 		/*TODO_kernel: state is uint32_t, not struct ovs_key_state */
 //	}
 
 	if (attrs != 0)
