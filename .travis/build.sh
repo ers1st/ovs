@@ -20,9 +20,9 @@ function install_kernel()
 
 function install_dpdk()
 {
-    wget http://www.dpdk.org/browse/dpdk/snapshot/dpdk-1.6.0.tar.gz
+    wget http://www.dpdk.org/browse/dpdk/snapshot/dpdk-1.7.0.tar.gz
     echo "Debug 1"
-    tar xzvf dpdk-1.6.0.tar.gz > /dev/null
+    tar xzvf dpdk-1.7.0.tar.gz > /dev/null
     echo "Debug 2"
     cd dpdk-1.6.0
     echo "Debug 3"
