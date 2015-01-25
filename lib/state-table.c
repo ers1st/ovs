@@ -1,16 +1,31 @@
+#include <config.h>
+#include "state-table.h"
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "flow.h"
-#include "hash.h"
 #include "jhash.h"
 #include "hmap.h"
 #include "openflow/openflow.h"
+#include "openvswitch/types.h"
 #include "packets.h"
-#include "state-table.h"
-#include "include/openvswitch/types.h"
 #include "util.h"
 #include "vlog.h"
 
-void __extract_key(uint32_t **, uint32_t *, struct key_extractor *, 
+VLOG_DEFINE_THIS_MODULE(state_table); /* Should be removed after debugging. */
+
+/**
+ * Porting notes.
+ *
+ * When reusing this code for dpif-linux datapath implementation, replace:
+ * 		jhash_words()		with 		arch_fast_hash2()
+ */
+static void __extract_key(uint32_t **, uint32_t *, struct key_extractor *, 
 	               struct miniflow *);
+static inline uint32_t *miniflow_get_values_writable(struct miniflow *);
+static inline uint32_t *miniflow_get_u32_values_writable(struct miniflow *);
 
 
 struct state_table *state_table_create(void) 
@@ -34,8 +49,9 @@ void state_table_destroy(struct state_table *table)
     free(table);
 }
 
-void __extract_key(uint32_t **key, uint32_t *size, 
-				   struct key_extractor *extractor, struct miniflow *flow)
+static void __extract_key(uint32_t **key, uint32_t *size, 
+					      struct key_extractor *extractor, 
+					      struct miniflow *flow)
 {
 	/** 
 	 * TODO: Inserire controlli sul protocollo effettivo del pacchetto.  Alcuni
@@ -56,19 +72,18 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    case OFPXMT12_OFB_IN_PHY_PORT:
 	    	//TODO_fede
 
-	    case OFPXMT12_OFB_METADATA:
-	    	memcpy(oxm_vector + j, miniflow_get_metadata(flow),
-	    		sizeof(ovs_be64));
+	    case OFPXMT12_OFB_METADATA: {
+	    	ovs_be64 metadata = miniflow_get_metadata(flow);
+	    	memcpy(oxm_vector + j, &metadata, sizeof metadata);
 	    	j++;
 	    	break;
+	    }
 
 	    case OFPXMT12_OFB_ETH_DST:
 	    	oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
 	    		offsetof(struct flow, dl_dst));
 	    	oxm_vector[++j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
 	    		offsetof(struct flow, dl_dst) + 4);
-	    	// memcpy(oxm_vector + j, key->eth.dst, ETH_ALEN);
-	    	// j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;
 
 	    case OFPXMT12_OFB_ETH_SRC:
@@ -76,8 +91,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    		offsetof(struct flow, dl_src));
 	    	oxm_vector[++j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
 	    		offsetof(struct flow, dl_src) + 4);
-	    	//memcpy(oxm_vector + j, key->eth.src, ETH_ALEN);
-	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;   
 	    
 	    case OFPXMT12_OFB_ETH_TYPE:
@@ -94,11 +107,11 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    	break;
 	    
 	    case OFPXMT12_OFB_IP_DSCP:
-	    	oxm_vector[j] = (uint32_t) (MINIFLOW_GET_U8(flow, nw_tos) & dscp_mask);
+	    	oxm_vector[j] = (uint32_t) (MINIFLOW_GET_U8(flow, nw_tos) & 0x3);
 	    	break;
 	    
 	    case OFPXMT12_OFB_IP_ECN:
-		    oxm_vector[j] = (uint32_t) (MINIFLOW_GET_U8(flow, nw_tos) & ecn_mask);
+		    oxm_vector[j] = (uint32_t) (MINIFLOW_GET_U8(flow, nw_tos) & !0x3);
 	    	break;     
 	    
 	    case OFPXMT12_OFB_IP_PROTO:
@@ -147,8 +160,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    		offsetof(struct flow, arp_sha));
 	    	oxm_vector[++j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
 	    		offsetof(struct flow, arp_sha) + 4);
-	    	//memcpy(oxm_vector + j, key->ipv4.arp.sha, ETH_ALEN);
-	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break; 
 	    
 	    case OFPXMT12_OFB_ARP_THA:
@@ -156,8 +167,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    		offsetof(struct flow, arp_tha));
 	    	oxm_vector[++j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
 	    		offsetof(struct flow, arp_tha) + 4);
-	    	//memcpy(oxm_vector + j, key->ipv4.arp.tha, ETH_ALEN);
-	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;  
 	    
 	    case OFPXMT12_OFB_IPV6_SRC:
@@ -168,8 +177,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    			j++;
 	    		}
 	    	}
-	    	//memcpy(oxm_vector + j, key->ipv6.addr.src.s6addr, 16);
-	    	//j += 3;
 	    	break;
 	    
 	    case OFPXMT12_OFB_IPV6_DST:
@@ -180,8 +187,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    			j++;
 	    		}
 	    	}
-	    	//memcpy(oxm_vector + j, key->ipv6.addr.dst.s6addr, 16);
-	    	//j += 3;
 	    	break;  
 	    
 	    case OFPXMT12_OFB_IPV6_FLABEL:
@@ -196,7 +201,7 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    	oxm_vector[j] = (uint32_t) ntohs(MINIFLOW_GET_BE16(flow, tp_dst));
     		break; 
 	    
-	    case OFPXMT12_OFB_IPV6_ND_TARGET://TODO
+	    case OFPXMT12_OFB_IPV6_ND_TARGET:
 		    for (k = 0; k < 4; k++) {
 	    		oxm_vector[j] = MINIFLOW_GET_TYPE(flow, uint32_t, 
 	    		offsetof(struct flow, nd_target) + k * 4);
@@ -204,8 +209,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    			j++;
 	    		}
 	    	}
-	    	//memcpy(oxm_vector + j, key->ipv6.nd.target.s6addr, 16);
-	    	//j += 3;
 	    	break;    	    	
 	    
 	    case OFPXMT12_OFB_IPV6_ND_SLL:
@@ -213,8 +216,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    		offsetof(struct flow, arp_sha));
 	    	oxm_vector[++j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
 	    		offsetof(struct flow, arp_sha) + 4);
-			//memcpy(oxm_vector + j, key->ipv6.nd.sll, ETH_ALEN);
-	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1; 
 	    	break;
 	    
 	    case OFPXMT12_OFB_IPV6_ND_TLL:
@@ -222,8 +223,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
 	    		offsetof(struct flow, arp_tha));
 	    	oxm_vector[++j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
 	    		offsetof(struct flow, arp_tha) + 4);
-	    	//memcpy(oxm_vector + j, key->ipv6.nd.tll, ETH_ALEN);
-	    	//j += ETH_ALEN / 4 + ((ETH_ALEN % 4) != 0) - 1;
 	    	break;   
 	    
 	    case OFPXMT12_OFB_MPLS_LABEL:
@@ -274,7 +273,6 @@ void __extract_key(uint32_t **key, uint32_t *size,
     }
     *key = oxm_vector;
     *size = --j;
-    //return arch_fast_hash2(oxm_vector, --j, 0);
 }
 
 /* Having the read_key, look for the state value inside the state table. */
@@ -287,9 +285,9 @@ struct state_entry *state_table_lookup(struct state_table *table,
 
 	static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
 
-    key = __extract_key(&key, &key_size, &table->read_key, flow);
+    __extract_key(&key, &key_size, &table->read_key, flow);
 
-	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, arch_fast_hash2(key, key_size, 0), 
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, jhash_words(key, key_size, 0), 
 		&table->state_entries) {
 			if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
 				VLOG_WARN_RL(&rl, "Found corresponding state %u", e->state);
@@ -307,7 +305,7 @@ struct state_entry *state_table_lookup(struct state_table *table,
 
 void state_table_write_state(struct state_entry *entry, struct miniflow *flow)
 {
-	*(miniflow_get_uint32_t_values(flow) +
+	*(miniflow_get_u32_values_writable(flow) +
             count_1bits(flow->map & ((UINT64_C(1) << 
             	offsetof(struct flow, state)) - 1))) = entry->state;
 }
@@ -334,7 +332,7 @@ void state_table_set_state(struct state_table *table, struct miniflow *flow,
 	    printf("state table no pkt exist \n");
 	}
 
-	hash_key = arch_fast_hash2(key, key_size, 0);
+	hash_key = jhash_words(key, key_size, 0);
 
 	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, hash_key, &table->state_entries) {
 		if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
@@ -373,7 +371,7 @@ void state_table_del_state(struct state_table *table, uint32_t *key,
 {
 	struct state_entry *e;
 	bool found = 0;
-	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, arch_fast_hash2(key, key_size, 0), 
+	HMAP_FOR_EACH_WITH_HASH(e, hmap_node, jhash_words(key, key_size, 0), 
 		&table->state_entries) {
 		if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
 			found = 1;
@@ -384,4 +382,15 @@ void state_table_del_state(struct state_table *table, uint32_t *key,
 		hmap_remove(&table->state_entries, &e->hmap_node);
 		hmap_shrink(&table->state_entries);
 	}
+}
+
+static inline uint32_t *miniflow_get_values_writable(struct miniflow *mf)
+{
+    return OVS_LIKELY(mf->values_inline)
+        ? mf->inline_values : mf->offline_values;
+}
+
+static inline uint32_t *miniflow_get_u32_values_writable(struct miniflow *mf)
+{
+    return miniflow_get_values_writable(mf);
 }

@@ -4,15 +4,12 @@
 #include "flow.h"
 #include "hmap.h"
 #include "packets.h"
-#include "vlog.h"
 
 #define MAX_EXTRACTION_FIELD_COUNT 8
 #define MAX_STATE_KEY_LEN 48
 
 #define STATE_DEFAULT 0
 
-const uint8_t dscp_mask = 0x3;
-const uint8_t ecn_mask =  !0x3;
 //TODO: sostituisci packet con ofpbuf!
 /** 
  * oxm_vector length is greater than extractor->field_count; that is because
