@@ -574,7 +574,8 @@ static int execute_recirc(struct datapath *dp, struct sk_buff *skb,
 
 static int execute_set_state(struct datapath *dp, struct sk_buff *skb,
 				 const struct nlattr *a) {
-	/*TODO*/
+	/* TODO: To be included in kernel-space implementation of OpenState. */
+	return -1;
 }
 
 /* Execute a list of actions against 'skb'. */
@@ -648,7 +649,7 @@ static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 			break;
 
 		case OVS_ACTION_ATTR_SET_STATE:
-			err = execute_set_state(); //TODO_fede: implementa
+			err = execute_set_state(dp, skb, a);
 			break;
 		}
 
