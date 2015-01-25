@@ -9,7 +9,7 @@ env:
   - OPTS="--disable-ssl"
   - TESTSUITE=1 
   - KERNEL=1 OPTS="--with-linux=./linux-3.14.26"
-  - KERNEL=1 DPDK=1 OPTS="--with-dpdk=./dpdk-1.6.0/build"
+  - DPDK=1 OPTS="--with-dpdk=./dpdk-1.6.0/build"
 
 script: ./.travis/build.sh $OPTS
 
