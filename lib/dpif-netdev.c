@@ -2222,17 +2222,10 @@ dp_execute_cb(void *aux_, struct ofpbuf *packet,
         break;
 
     case OVS_ACTION_ATTR_SET_STATE: {
-        struct pkt_metadata set_state_md;
-        uint32_t state;
-        struct miniflow *flow;
-        
-        set_state_md = *md;
-        state = nl_attr_get_u32(a);
-        flow = xmalloc(sizeof *flow);
+        struct pkt_metadata set_state_md = *md;
+        uint32_t state = nl_attr_get_u32(a);
 
-        miniflow_extract(packet, &set_state_md, flow);
-        state_table_set_state(&aux->dp->state_table, flow, state, NULL, 0);
-        miniflow_destroy(flow);
+        state_table_set_state(&aux->dp->state_table, &aux->key, state, NULL, 0);
         break;
     }
 

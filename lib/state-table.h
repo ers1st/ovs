@@ -11,11 +11,14 @@
 #define STATE_DEFAULT 0
 
 /** 
+ * Key size.
+ *
  * oxm_vector length is greater than extractor->field_count; that is because
  * fields like ethernet addresses are greater than 32 bits, and so they are
  * coded in more than one integer.
  * Match fields assigned to more than one 32 bit integer are (currently
  * ETH_ALEN is 6):
+ *
  *   - OFPXMT12_OFB_ETH_DST:        ETH_ALEN B
  *   - OFPXMT12_OFB_ETH_SRC:        ETH_ALEN B
  *   - OFPXMT12_OFB_ARP_SHA:        ETH_ALEN B
@@ -25,6 +28,7 @@
  *   - OFPXMT12_OFB_IPV6_ND_TARGET: 16       B
  *   - OFPXMT12_OFB_IPV6_ND_SLL:    ETH_ALEN B
  *   - OFPXMT12_OFB_IPV6_ND_TLL:    ETH_ALEN B
+ *
  * In the worst case we'll need 6*ETH_ALEN + 16*3 - 4*9 = 48 additional bytes.
  * oxm_vector[] is composed by uint32_t, so additional size is 48/4 = 12.
  */
