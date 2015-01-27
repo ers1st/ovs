@@ -81,6 +81,7 @@ odp_action_len(uint16_t type)
     case OVS_ACTION_ATTR_POP_MPLS: return sizeof(ovs_be16);
     case OVS_ACTION_ATTR_RECIRC: return sizeof(uint32_t);
     case OVS_ACTION_ATTR_HASH: return sizeof(struct ovs_action_hash);
+    case OVS_ACTION_ATTR_SET_STATE: return sizeof(uint32_t);
     case OVS_ACTION_ATTR_SET: return -2;
     case OVS_ACTION_ATTR_SAMPLE: return -2;
 
@@ -468,6 +469,11 @@ format_odp_action(struct ds *ds, const struct nlattr *a)
     case OVS_ACTION_ATTR_SAMPLE:
         format_odp_sample_action(ds, a);
         break;
+    case OVS_ACTION_ATTR_SET_STATE: {
+        uint32_t state = nl_attr_get_u32(a);
+        ds_put_format(ds, "set_state(%"PRIx32")", state);
+        break;
+    }
     case OVS_ACTION_ATTR_UNSPEC:
     case __OVS_ACTION_ATTR_MAX:
     default:

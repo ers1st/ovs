@@ -2038,7 +2038,7 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
     miniflow_initialize(&key.flow, key.buf);
     miniflow_extract(packet, md, &key.flow);
 
-    /* Do state lookup and set metadata. */
+    /* Lookup state table and set metadata. */
     struct state_entry *state_entry;
     state_entry = state_table_lookup(&dp->state_table, &key.flow);
     state_table_write_state(state_entry, &key.flow);
