@@ -28,18 +28,14 @@ static inline uint32_t *miniflow_get_values_writable(struct miniflow *);
 static inline uint32_t *miniflow_get_u32_values_writable(struct miniflow *);
 
 
-struct state_table *state_table_create(void) 
+void state_table_init(struct state_table *table) 
 {
-    struct state_table *table = xmalloc(sizeof(struct state_table));
-
     memset(table, 0, sizeof(*table));
      
     table->state_entries = (struct hmap) 
         HMAP_INITIALIZER(&table->state_entries);
 
     table->default_state_entry.state = STATE_DEFAULT;
-    
-    return table;
 }
 
 void state_table_destroy(struct state_table *table) 

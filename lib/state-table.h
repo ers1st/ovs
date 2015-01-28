@@ -55,7 +55,7 @@ struct state_table {
 };
 
 
-struct state_table *state_table_create(void);
+void state_table_init(struct state_table *);
 void state_table_destroy(struct state_table *);
 struct state_entry *state_table_lookup(struct state_table *, struct miniflow *);
 void state_table_write_state(struct state_entry *, struct miniflow *);

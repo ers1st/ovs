@@ -476,6 +476,9 @@ create_dp_netdev(const char *name, const struct dpif_class *class,
     classifier_init(&dp->cls, NULL);
     hmap_init(&dp->flow_table);
 
+    state_table_init(&dp->state_table);
+    dp->flags = 0;
+
     fat_rwlock_init(&dp->queue_rwlock);
 
     ovsthread_stats_init(&dp->stats);
@@ -554,6 +557,8 @@ dp_netdev_free(struct dp_netdev *dp)
 
     dp_netdev_set_pmd_threads(dp, 0);
     free(dp->pmd_threads);
+    
+    state_table_destroy(&dp->state_table);
 
     dp_netdev_flow_flush(dp);
     ovs_rwlock_wrlock(&dp->port_rwlock);

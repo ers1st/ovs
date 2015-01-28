@@ -471,7 +471,7 @@ format_odp_action(struct ds *ds, const struct nlattr *a)
         break;
     case OVS_ACTION_ATTR_SET_STATE: {
         uint32_t state = nl_attr_get_u32(a);
-        ds_put_format(ds, "set_state(%"PRIx32")", state);
+        ds_put_format(ds, "set_state(Ox%"PRIx32")", state);
         break;
     }
     case OVS_ACTION_ATTR_UNSPEC:
@@ -1661,6 +1661,25 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
     }
 
     {
+        uint32_t state;
+        uint32_t state_mask;
+        int n = -1;
+
+        if (mask && ovs_scan(s, "state(%"SCNi32"/%"SCNi32")%n", &state,
+                             &state_mask, &n)) {
+            nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
+            nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, state_mask);
+            return n;
+        } else if (ovs_scan(s, "state(%"SCNi32")%n", &state, &n)) {
+            nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
+            if (mask) {
+                nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, UINT32_MAX);
+            }
+            return n;
+        }
+    }
+
+    {
         uint32_t recirc_id;
         int n = -1;
 
@@ -2492,7 +2511,7 @@ static void
 odp_flow_key_from_flow__(struct ofpbuf *buf, const struct flow *flow,
                          const struct flow *mask, odp_port_t odp_in_port,
                          size_t max_mpls_depth, bool export_mask)
-{ /* TODO: aggiungi state. */
+{
     struct ovs_key_ethernet *eth_key;
     size_t encap;
     const struct flow *data = export_mask ? mask : flow;
@@ -2511,6 +2530,10 @@ odp_flow_key_from_flow__(struct ofpbuf *buf, const struct flow *flow,
 
     if (data->dp_hash || (mask && mask->dp_hash)) {
         nl_msg_put_u32(buf, OVS_KEY_ATTR_DP_HASH, data->dp_hash);
+    }
+
+    if (data->state || (mask && mask->state)) {
+        nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, data->state);
     }
 
     /* Add an ingress port attribute if this is a mask or 'odp_in_port'
@@ -2710,7 +2733,7 @@ odp_flow_key_from_mask(struct ofpbuf *buf, const struct flow *mask,
 /* Generate ODP flow key from the given packet metadata */
 void
 odp_key_from_pkt_metadata(struct ofpbuf *buf, const struct pkt_metadata *md)
-{ /* TODO: aggiungi state. */
+{
     nl_msg_put_u32(buf, OVS_KEY_ATTR_PRIORITY, md->skb_priority);
 
     if (md->tunnel.ip_dst) {
@@ -2718,6 +2741,8 @@ odp_key_from_pkt_metadata(struct ofpbuf *buf, const struct pkt_metadata *md)
     }
 
     nl_msg_put_u32(buf, OVS_KEY_ATTR_SKB_MARK, md->pkt_mark);
+
+    nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, md->state);
 
     /* Add an ingress port attribute if 'odp_in_port' is not the magical
      * value "ODPP_NONE". */
@@ -2735,7 +2760,7 @@ odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
     size_t left;
     uint32_t wanted_attrs = 1u << OVS_KEY_ATTR_PRIORITY |
         1u << OVS_KEY_ATTR_SKB_MARK | 1u << OVS_KEY_ATTR_TUNNEL |
-        1u << OVS_KEY_ATTR_IN_PORT;
+        1u << OVS_KEY_ATTR_IN_PORT | 1u << OVS_KEY_ATTR_STATE;
 
     *md = PKT_METADATA_INITIALIZER(ODPP_NONE);
 
@@ -2756,6 +2781,10 @@ odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
         case OVS_KEY_ATTR_DP_HASH:
             md->dp_hash = nl_attr_get_u32(nla);
             wanted_attrs &= ~(1u << OVS_KEY_ATTR_DP_HASH);
+            break;
+        case OVS_KEY_ATTR_STATE:
+            md->state = nl_attr_get_u32(nla);
+            wanted_attrs &= ~(1u << OVS_KEY_ATTR_STATE);
             break;
         case OVS_KEY_ATTR_PRIORITY:
             md->skb_priority = nl_attr_get_u32(nla);
