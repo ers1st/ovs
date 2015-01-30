@@ -393,6 +393,7 @@
 #include "ofpbuf.h"
 #include "openflow/openflow.h"
 #include "packets.h"
+#include "state-table.h"
 #include "util.h"
 
 #ifdef  __cplusplus
@@ -647,6 +648,7 @@ int dpif_recv(struct dpif *, uint32_t handler_id, struct dpif_upcall *,
               struct ofpbuf *);
 void dpif_recv_purge(struct dpif *);
 void dpif_recv_wait(struct dpif *, uint32_t handler_id);
+void dpif_set_extractor(struct dpif *, struct key_extractor *, bool);
 
 /* Miscellaneous. */
 

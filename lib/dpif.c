@@ -38,6 +38,7 @@
 #include "poll-loop.h"
 #include "shash.h"
 #include "sset.h"
+#include "state-table.h"
 #include "timeval.h"
 #include "util.h"
 #include "valgrind.h"
@@ -1438,6 +1439,14 @@ void
 dpif_recv_wait(struct dpif *dpif, uint32_t handler_id)
 {
     dpif->dpif_class->recv_wait(dpif, handler_id);
+}
+
+/* Sets the OpenState key extractor; update is set to 1 if setting write
+ * extractor, 0 otherwise. */
+void 
+dpif_set_extractor(struct dpif *dpif, struct key_extractor *ke, bool update)
+{
+    dpif->dpif_class->set_extractor(dpif, ke, update);
 }
 
 /* Obtains the NetFlow engine type and engine ID for 'dpif' into '*engine_type'

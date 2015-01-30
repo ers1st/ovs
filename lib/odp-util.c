@@ -471,7 +471,7 @@ format_odp_action(struct ds *ds, const struct nlattr *a)
         break;
     case OVS_ACTION_ATTR_SET_STATE: {
         uint32_t state = nl_attr_get_u32(a);
-        ds_put_format(ds, "set_state(Ox%"PRIx32")", state);
+        ds_put_format(ds, "set_state(%"PRIu32")", state);
         break;
     }
     case OVS_ACTION_ATTR_UNSPEC:
@@ -1067,10 +1067,16 @@ format_odp_key_attr(const struct nlattr *a, const struct nlattr *ma,
     case OVS_KEY_ATTR_SKB_MARK:
     case OVS_KEY_ATTR_DP_HASH:
     case OVS_KEY_ATTR_RECIRC_ID:
-    case OVS_KEY_ATTR_STATE:
         ds_put_format(ds, "%#"PRIx32, nl_attr_get_u32(a));
         if (!is_exact) {
             ds_put_format(ds, "/%#"PRIx32, nl_attr_get_u32(ma));
+        }
+        break;
+        
+    case OVS_KEY_ATTR_STATE:
+        ds_put_format(ds, "%#"PRIu32, nl_attr_get_u32(a));
+        if (!is_exact) {
+            ds_put_format(ds, "/%#"PRIu32, nl_attr_get_u32(ma));
         }
         break;
 

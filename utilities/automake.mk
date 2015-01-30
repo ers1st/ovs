@@ -2,6 +2,7 @@ bin_PROGRAMS += \
 	utilities/ovs-appctl \
 	utilities/ovs-dpctl \
 	utilities/ovs-ofctl \
+	utilities/ovs-openstate \
 	utilities/ovs-vsctl
 bin_SCRIPTS += utilities/ovs-pki
 if HAVE_PYTHON
@@ -101,6 +102,9 @@ utilities_ovs_appctl_LDADD = lib/libopenvswitch.la
 
 utilities_ovs_dpctl_SOURCES = utilities/ovs-dpctl.c
 utilities_ovs_dpctl_LDADD = lib/libopenvswitch.la
+
+utilities_ovs_openstate_SOURCES = utilities/ovs-openstate.c
+utilities_ovs_openstate_LDADD = lib/libopenvswitch.la
 
 utilities_ovs_ofctl_SOURCES = utilities/ovs-ofctl.c
 utilities_ovs_ofctl_LDADD = \

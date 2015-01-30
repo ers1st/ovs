@@ -24,6 +24,7 @@
 
 #include "openflow/openflow.h"
 #include "dpif.h"
+#include "state-table.h"
 #include "util.h"
 
 #ifdef  __cplusplus
@@ -436,6 +437,10 @@ struct dpif_class {
     /* Throws away any queued upcalls that 'dpif' currently has ready to
      * return. */
     void (*recv_purge)(struct dpif *dpif);
+
+    /* Set the key extractor required for OpenState processing. */
+    void (*set_extractor)(struct dpif *dpif, struct key_extractor *ke,
+                          bool update);
 };
 
 extern const struct dpif_class dpif_linux_class;

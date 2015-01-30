@@ -1628,6 +1628,14 @@ dpif_netdev_recv_set(struct dpif *dpif, bool enable)
     return 0;
 }
 
+static void
+dpif_netdev_set_extractor(struct dpif *dpif, struct key_extractor *ke, 
+                          bool update)
+{
+    struct dp_netdev *dp = get_dp_netdev(dpif);
+    state_table_set_extractor(&dp->state_table, ke, update);
+}
+
 static int
 dpif_netdev_handlers_set(struct dpif *dpif, uint32_t n_handlers)
 {
@@ -2296,6 +2304,7 @@ const struct dpif_class dpif_netdev_class = {
     dpif_netdev_recv,
     dpif_netdev_recv_wait,
     dpif_netdev_recv_purge,
+    dpif_netdev_set_extractor,
 };
 
 static void
