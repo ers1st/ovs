@@ -34,6 +34,18 @@
  */
 #define OXM_VECTOR_ADDITIONAL_SIZE 12
 
+
+/**
+ * struct key extractor represents the key used for state table lookup.  It is
+ * an ordered array of match fields, expressed in OpenFlow flow match field
+ * types.
+ *
+ * N.B.: Using OpenFlow flow match field types is a violation of Open vSwitch
+ * architecture; a more orthodox implementation should use ovs_key_attr fields,
+ * converted from OpenFlow types in the ofproto layer.  OpenFlow match field
+ * types are used for a quicker fitting from ofsoftswitch13 OpenState
+ * implementation.
+ */
 struct key_extractor {
     uint32_t field_count;
     uint32_t fields[MAX_EXTRACTION_FIELD_COUNT]; /*  from enum 
@@ -57,7 +69,8 @@ struct state_table {
 
 void state_table_init(struct state_table *);
 void state_table_destroy(struct state_table *);
-struct state_entry *state_table_lookup(struct state_table *, struct miniflow *);
+struct state_entry *state_table_lookup(struct state_table *, 
+                                       struct miniflow *);
 void state_table_write_state(struct state_entry *, struct miniflow *);
 void state_table_set_state(struct state_table *, struct miniflow *, uint32_t, 
                            uint32_t *, uint32_t);

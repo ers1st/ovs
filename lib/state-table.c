@@ -44,15 +44,15 @@ void state_table_destroy(struct state_table *table)
     free(table);
 }
 
+/**
+ * TODO: Should be changed to static int extract_key__(), or at least we should
+ * check the key_extractor at some point in the stack.  E.g. some fields are
+ * mutually exclusive, or they could just be invalid.
+ */
 static void extract_key__(uint32_t **key, uint32_t *size, 
                           struct key_extractor *extractor, 
                           struct miniflow *flow)
 {
-    /** 
-     * TODO: Inserire controlli sul protocollo effettivo del pacchetto.  Alcuni
-     * campi sono in comune tra più protocolli, se viene settato il key
-     * extractor in modo errato si potrebbero avere problemi.
-     */
     const int OXM_VECTOR_SIZE = extractor->field_count + 
         OXM_VECTOR_ADDITIONAL_SIZE;
     uint32_t *oxm_vector = xmalloc(sizeof(uint32_t) * OXM_VECTOR_SIZE);
@@ -185,7 +185,8 @@ static void extract_key__(uint32_t **key, uint32_t *size,
             break;  
         
         case OFPXMT12_OFB_IPV6_FLABEL:
-            oxm_vector[j] = (uint32_t) ntohl(MINIFLOW_GET_BE32(flow, ipv6_label));
+            oxm_vector[j] = (uint32_t) ntohl(MINIFLOW_GET_BE32(flow, 
+                                                               ipv6_label));
             break;
         
         case OFPXMT12_OFB_ICMPV6_TYPE:
