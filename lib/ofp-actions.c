@@ -1307,7 +1307,8 @@ ofpact_from_openflow11(const union ofp_action *a, enum ofp_version version,
     return error;
 }
 
-static enum ofperr
+/*TODO_warning: rimetti static */
+/*static*/ enum ofperr
 ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
         struct ofpbuf *out) {
     enum ofputil_action_code code;
@@ -1330,6 +1331,37 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
 #include "ofp-util.def"
         OVS_NOT_REACHED();
 
+    /* TODO_warning */
+    case OFPUTIL_NXAST_RESUBMIT:
+    case OFPUTIL_NXAST_SET_TUNNEL:
+    case OFPUTIL_NXAST_SET_QUEUE:
+    case OFPUTIL_NXAST_POP_QUEUE:
+    case OFPUTIL_NXAST_REG_MOVE:
+    case OFPUTIL_NXAST_REG_LOAD:
+    case OFPUTIL_NXAST_STACK_PUSH:
+    case OFPUTIL_NXAST_STACK_POP:
+    case OFPUTIL_NXAST_NOTE:
+    case OFPUTIL_NXAST_SET_TUNNEL64:
+    case OFPUTIL_NXAST_MULTIPATH:
+    case OFPUTIL_NXAST_BUNDLE:
+    case OFPUTIL_NXAST_BUNDLE_LOAD:
+    case OFPUTIL_NXAST_RESUBMIT_TABLE:
+    case OFPUTIL_NXAST_OUTPUT_REG:
+    case OFPUTIL_NXAST_LEARN:
+    case OFPUTIL_NXAST_EXIT:
+    case OFPUTIL_NXAST_DEC_TTL:
+    case OFPUTIL_NXAST_FIN_TIMEOUT:
+    case OFPUTIL_NXAST_CONTROLLER:
+    case OFPUTIL_NXAST_DEC_TTL_CNT_IDS:
+    case OFPUTIL_NXAST_WRITE_METADATA:
+    case OFPUTIL_NXAST_SET_MPLS_LABEL:
+    case OFPUTIL_NXAST_SET_MPLS_TC:
+    case OFPUTIL_NXAST_SET_MPLS_TTL:
+    case OFPUTIL_NXAST_DEC_MPLS_TTL:
+    case OFPUTIL_NXAST_PUSH_MPLS:
+    case OFPUTIL_NXAST_POP_MPLS:
+    case OFPUTIL_NXAST_SAMPLE:
+    /* Fine TODO_warning*/
     case OFPUTIL_OFPAT13_OUTPUT:
     case OFPUTIL_OFPAT13_COPY_TTL_OUT:
     case OFPUTIL_OFPAT13_COPY_TTL_IN:
@@ -1353,6 +1385,8 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
     			ntohl(a->set_state.state);
     	break;
     }
+
+    /* TODO_warning*/ return -1;
 }
 
 /* True if an action sets the value of a field
@@ -3067,11 +3101,13 @@ ofpact_to_openflow12(const struct ofpact *a, struct ofpbuf *out)
 
     ofpact_to_openflow11(a, out);
 }
-
-static void
+/* TODO_warning: rimettila static */
+/*static*/ void
 ofpacts_to_openflow13(const struct ofpact *a, struct ofpbuf *out)
 {
-
+    /* TODO_warning */
+    out = out;
+    /* Fine TODO_warning */
 	switch ((int)a->type) {
 	case OFPACT_SET_STATE:
 		/*TODO davide*/

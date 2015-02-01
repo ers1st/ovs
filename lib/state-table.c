@@ -23,7 +23,7 @@ VLOG_DEFINE_THIS_MODULE(state_table); /* Should be removed after debugging. */
  *      jhash_words()       with        arch_fast_hash2()
  */
 static void extract_key__(uint32_t **, uint32_t *, struct key_extractor *, 
-                          struct miniflow *);
+                          const struct miniflow *);
 static inline uint32_t *miniflow_get_values_writable(struct miniflow *);
 static inline uint32_t *miniflow_get_u32_values_writable(struct miniflow *);
 
@@ -51,14 +51,15 @@ void state_table_destroy(struct state_table *table)
  */
 static void extract_key__(uint32_t **key, uint32_t *size, 
                           struct key_extractor *extractor, 
-                          struct miniflow *flow)
+                          const struct miniflow *flow)
 {
     const int OXM_VECTOR_SIZE = extractor->field_count + 
         OXM_VECTOR_ADDITIONAL_SIZE;
     uint32_t *oxm_vector = xmalloc(sizeof(uint32_t) * OXM_VECTOR_SIZE);
     int i, j, k;
 
-    for (i = 0; i < extractor->field_count && j < OXM_VECTOR_SIZE; i++, j++) {
+    for (i = 0, j = 0; i < extractor->field_count && j < OXM_VECTOR_SIZE;
+         i++, j++) {
         switch (extractor->fields[i]) {
         case OFPXMT12_OFB_IN_PORT:
             oxm_vector[j] = MINIFLOW_GET_U32(flow, in_port);
@@ -302,12 +303,13 @@ struct state_entry *state_table_lookup(struct state_table *table,
 void state_table_write_state(struct state_entry *entry, struct miniflow *flow)
 {
     *(miniflow_get_u32_values_writable(flow) +
-            count_1bits(flow->map & ((UINT64_C(1) << 
-                offsetof(struct flow, state)) - 1))) = entry->state;
+      count_1bits(flow->map & ((UINT64_C(1) << 
+      offsetof(struct flow, state) / 4) - 1))) = entry->state;
 }
 
-void state_table_set_state(struct state_table *table, struct miniflow *flow, 
-                           uint32_t state, uint32_t *k, uint32_t k_size) 
+void state_table_set_state(struct state_table *table, 
+                           const struct miniflow *flow, uint32_t state, 
+                           uint32_t *k, uint32_t k_size) 
 {
     uint32_t *key;
     uint32_t key_size, hash_key;    

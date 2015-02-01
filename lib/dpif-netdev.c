@@ -2042,6 +2042,7 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
         struct miniflow flow;
         uint32_t buf[FLOW_U32S];
     } key;
+    struct state_entry *state_entry;
 
     if (ofpbuf_size(packet) < ETH_HEADER_LEN) {
         ofpbuf_delete(packet);
@@ -2052,7 +2053,6 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
     miniflow_extract(packet, md, &key.flow);
 
     /* Lookup state table and set metadata. */
-    struct state_entry *state_entry;
     state_entry = state_table_lookup(&dp->state_table, &key.flow);
     state_table_write_state(state_entry, &key.flow);
 
@@ -2235,10 +2235,10 @@ dp_execute_cb(void *aux_, struct ofpbuf *packet,
         break;
 
     case OVS_ACTION_ATTR_SET_STATE: {
-        struct pkt_metadata set_state_md = *md;
+        //struct pkt_metadata set_state_md = *md; 
         uint32_t state = nl_attr_get_u32(a);
-
-        state_table_set_state(&aux->dp->state_table, &aux->key, state, NULL, 0);
+        //md->state = state; TODO: è necessario?
+        state_table_set_state(&aux->dp->state_table, aux->key, state, NULL, 0);
         break;
     }
 

@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 {
     struct dpif *dpif;
     odp_port_t port_no;
-    struct netdev *device;
+    struct netdev *netdev;
     struct dpif_flow_stats stats0, stats1;
     struct dpif_port dpif_port;
     struct dpif_port_dump port_dump;
@@ -41,13 +41,14 @@ int main(int argc, char *argv[])
 
     /* Inizializzo il bridge. */
     port_no = PORT;
-    device = netdev_from_name(DEV_NAME);
+    netdev = netdev_from_name(DEV_NAME);
+    netdev_change_seq_changed(netdev); //TODO: è da chiamare?
 
     dpif_create_and_open("dp_openstate", "netdev", &dpif);
     printf("Created datapath with name: %s, and type: %s\n", 
            dpif->base_name, dpif->dpif_class->type);
 
-    dpif_port_add(dpif, device,  &port_no);
+    dpif_port_add(dpif, netdev,  &port_no);
     printf("Datapath bound to port %u\n", port_no);
 
 
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
     }
 
     //on_exit
-    netdev_close(device);
+    netdev_close(netdev);
     exit(EXIT_SUCCESS);
 }
 

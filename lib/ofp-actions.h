@@ -714,6 +714,12 @@ OFPACTS
 void ofpact_update_len(struct ofpbuf *, struct ofpact *);
 void ofpact_pad(struct ofpbuf *);
 
+/*TODO_warning: rimuovi*/
+enum ofperr ofpacts_from_openflow13(const union ofp_action *, enum ofp_version,
+                                    struct ofpbuf *);
+void ofpacts_to_openflow13(const struct ofpact *, struct ofpbuf *);
+/*Fine TODO_warning*/
+
 /* OpenFlow 1.1 instructions.
  * The order is sorted in execution order. Not in the value of OFPIT11_xxx.
  * It is enforced on parser from text string.

@@ -1074,9 +1074,9 @@ format_odp_key_attr(const struct nlattr *a, const struct nlattr *ma,
         break;
         
     case OVS_KEY_ATTR_STATE:
-        ds_put_format(ds, "%#"PRIu32, nl_attr_get_u32(a));
+        ds_put_format(ds, "%"PRIu32, nl_attr_get_u32(a));
         if (!is_exact) {
-            ds_put_format(ds, "/%#"PRIu32, nl_attr_get_u32(ma));
+            ds_put_format(ds, "/%"PRIu32, nl_attr_get_u32(ma));
         }
         break;
 

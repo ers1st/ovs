@@ -7140,6 +7140,7 @@ handle_state_mod(struct ofconn *ofconn, const struct ofp_header *oh)
 	 * succesfully executed by ofconn, so that connmgr can log it
 	 */
 	ofconn_report_state_mod(ofconn, sm.command); /*TODO*/
+    /*TODO_warning*/ return -1;
 }
 
 static enum ofperr handle_state_mod__(struct ofproto *ofproto,
@@ -7179,35 +7180,64 @@ OVS_EXCLUDED(ofproto_mutex)
 static enum ofperr get_state(struct ofputil_state_mod *sm,
 		uint32_t *state) {
 	/*TODO davide*/
+    /*TODO_warning*/
+    sm = sm;
+    state = state;
+    return -1;
+    /* Fine TODO_warning */
 }
 
 static enum ofperr ofproto_check_state(uint32_t *state, struct ofproto *ofproto) {
 	/*TODO davide*/
-
+    /*TODO_warning*/
+    ofproto = ofproto;
+    state = state;
+    return -1;
+    /* Fine TODO_warning */
 }
 
 static enum ofperr set_lookup_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
 	/*TODO davide*/
-
+    /*TODO_warning*/
+    ofproto = ofproto;
+    osm = osm;
+    req = req;
+    return -1;
+    /* Fine TODO_warning */
 }
 
 static enum ofperr set_update_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
 	/*TODO davide*/
-
+    /*TODO_warning*/
+    ofproto = ofproto;
+    osm = osm;
+    req = req;
+    return -1;
+    /* Fine TODO_warning */
 }
 
 static enum ofperr add_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
 	/*TODO davide*/
-
+    /*TODO_warning*/
+    ofproto = ofproto;
+    osm = osm;
+    req = req;
+    return -1;
+    /* Fine TODO_warning */
 }
 
 static enum ofperr del_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm,
 		const struct state_mod_requester *req) {
 	/*TODO davide*/
-
+    /*TODO_warning*/
+    ofproto = ofproto;
+    osm = osm;
+    req = req;
+    return -1;
+    /* Fine TODO_warning */
 }
 
 /**
@@ -7219,7 +7249,9 @@ handle_flag_mod(struct ofconn *ofconn, const struct ofp_header *oh) {
 	/*TODO davide*/
 	enum ofperr error;
 	struct ofputil_flag_mod fmod;
-
+    /*TODO_warning*/
+    ofconn = ofconn;
+    /* Fine TODO_warning */
 	error = ofputil_decode_flag_mod(oh, &fmod);
 	if (error) {
 		return error;

@@ -6,7 +6,7 @@ compiler:
 before_install: ./.travis/prepare.sh
 
 env:
-  - OPTS="--disable-ssl"
+  - OPTS="--disable-ssl --enable-Werror"
   - TESTSUITE=1 
   - KERNEL=1 OPTS="--with-linux=./linux-3.14.26"
 

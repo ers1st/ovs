@@ -72,8 +72,8 @@ void state_table_destroy(struct state_table *);
 struct state_entry *state_table_lookup(struct state_table *, 
                                        struct miniflow *);
 void state_table_write_state(struct state_entry *, struct miniflow *);
-void state_table_set_state(struct state_table *, struct miniflow *, uint32_t, 
-                           uint32_t *, uint32_t);
+void state_table_set_state(struct state_table *, const struct miniflow *, 
+                           uint32_t, uint32_t *, uint32_t);
 void state_table_set_extractor(struct state_table *, struct key_extractor *, 
                                bool);
 void state_table_del_state(struct state_table *, uint32_t *, uint32_t);

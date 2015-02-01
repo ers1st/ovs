@@ -7609,6 +7609,11 @@ ofputil_encode_state_mod(const struct ofp_header *oh,
 	struct ofpbuf *msg;
 	struct ofp13_state_mod *smod;
 
+    /*TODO_warning*/
+    msg = ofpraw_alloc(OFPRAW_OFPT13_STATE_MOD, OFP13_VERSION, 0);
+    smod = ofpbuf_put_zeros(msg, sizeof *smod);
+    /*Fine TODO_warning*/
+
 	smod->command = smodm->command;
 	smod->cookie = ntohll(smodm->cookie);
 	smod->cookie_mask = ntohll(smodm->cookie_mask);
@@ -7629,7 +7634,10 @@ ofputil_decode_flag_mod(const struct ofp_header *oh,
 	enum ofpraw raw;
     struct ofpbuf b;
     int i;
-
+    /*TODO_warning*/
+    i=0;
+    i=i;
+    /*Fine TODO_warning*/
     ofpbuf_use_const(&b, oh, ntohs(oh->length));
     raw = ofpraw_pull_assert(&b);
 
@@ -7654,6 +7662,11 @@ ofputil_encode_flag_mod(const struct ofp_header *oh,
 {
 	struct ofpbuf *msg;
 	struct ofp13_state_mod *fmod;
+    /*TODO_warning*/
+    fmodm=fmodm;
+    msg = ofpraw_alloc(OFPRAW_OFPT13_STATE_MOD, OFP13_VERSION, 0);
+    fmod = ofpbuf_put_zeros(msg, sizeof *fmod);
+    /*Fine TODO_warning*/
 
 	ofpbuf_put(msg, oh, sizeof(struct ofp_header));
 	ofpbuf_put(msg, fmod, sizeof(struct ofp13_state_mod));
