@@ -6,7 +6,6 @@
 #include "dpif.h"
 #include "dpif-provider.h"
 #include "openflow/openflow.h"
-#include "netdev-provider.h"
 #include "odp-util.h"
 #include "simap.h"
 #include "state-table.h"
@@ -41,8 +40,11 @@ int main(int argc, char *argv[])
 
     /* Inizializzo il bridge. */
     port_no = PORT;
-    netdev = netdev_from_name(DEV_NAME);
-    netdev_change_seq_changed(netdev); //TODO: è da chiamare?
+    if (netdev_open(DEV_NAME, dpif_port_open_type("netdev", "system"), 
+                    &netdev)) {
+        fprintf(stderr, "Error in opening netdev\n");
+        exit(EXIT_FAILURE);
+    }
 
     dpif_create_and_open("dp_openstate", "netdev", &dpif);
     printf("Created datapath with name: %s, and type: %s\n", 
