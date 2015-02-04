@@ -527,6 +527,16 @@ parse_odp_action(const char *s, const struct simap *port_names,
         }
     }
 
+    {
+        uint32_t state;
+        int n;
+
+        if (ovs_scan(s, "set_state(%"SCNu32")%n", &state, &n)) {
+            nl_msg_put_u32(actions, OVS_ACTION_ATTR_SET_STATE, state);
+            return n;
+        }
+    }
+
     if (port_names) {
         int len = strcspn(s, delimiters);
         struct simap_node *node;
@@ -1671,12 +1681,12 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
         uint32_t state_mask;
         int n = -1;
 
-        if (mask && ovs_scan(s, "state(%"SCNi32"/%"SCNi32")%n", &state,
+        if (mask && ovs_scan(s, "state(%"SCNu32"/%"SCNu32")%n", &state,
                              &state_mask, &n)) {
             nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
             nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, state_mask);
             return n;
-        } else if (ovs_scan(s, "state(%"SCNi32")%n", &state, &n)) {
+        } else if (ovs_scan(s, "state(%"SCNu32")%n", &state, &n)) {
             nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
             if (mask) {
                 nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, UINT32_MAX);

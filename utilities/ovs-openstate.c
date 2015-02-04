@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
      * 1                1           set_state(0)
      */
 
-    openstate_add_flow(dpif, &port_names, &stats0, key_s0, actions_s0);
-    openstate_add_flow(dpif, &port_names, &stats1, key_s1, actions_s1);
+    openstate_add_flow(dpif, NULL, &stats0, key_s0, actions_s0);
+    openstate_add_flow(dpif, NULL, &stats1, key_s1, actions_s1);
 
     printf("Running bridge.\n");
     for(;;) {
