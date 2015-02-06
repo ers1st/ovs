@@ -2798,10 +2798,6 @@ odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
             md->dp_hash = nl_attr_get_u32(nla);
             wanted_attrs &= ~(1u << OVS_KEY_ATTR_DP_HASH);
             break;
-        case OVS_KEY_ATTR_STATE:
-            md->state = nl_attr_get_u32(nla);
-            wanted_attrs &= ~(1u << OVS_KEY_ATTR_STATE);
-            break;
         case OVS_KEY_ATTR_PRIORITY:
             md->skb_priority = nl_attr_get_u32(nla);
             wanted_attrs &= ~(1u << OVS_KEY_ATTR_PRIORITY);
@@ -2824,6 +2820,10 @@ odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
         case OVS_KEY_ATTR_IN_PORT:
             md->in_port.odp_port = nl_attr_get_odp_port(nla);
             wanted_attrs &= ~(1u << OVS_KEY_ATTR_IN_PORT);
+            break;
+        case OVS_KEY_ATTR_STATE:
+            md->state = nl_attr_get_u32(nla);
+            wanted_attrs &= ~(1u << OVS_KEY_ATTR_STATE);
             break;
         default:
             break;
