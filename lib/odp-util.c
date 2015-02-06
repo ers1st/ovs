@@ -527,16 +527,6 @@ parse_odp_action(const char *s, const struct simap *port_names,
         }
     }
 
-    {
-        uint32_t state;
-        int n;
-
-        if (ovs_scan(s, "set_state(%"SCNu32")%n", &state, &n)) {
-            nl_msg_put_u32(actions, OVS_ACTION_ATTR_SET_STATE, state);
-            return n;
-        }
-    }
-
     if (port_names) {
         int len = strcspn(s, delimiters);
         struct simap_node *node;
@@ -722,6 +712,16 @@ parse_odp_action(const char *s, const struct simap *port_names,
             nl_msg_end_nested(actions, sample_ofs);
 
             return s[n + 1] == ')' ? n + 2 : -EINVAL;
+        }
+    }
+
+    {
+        uint32_t state;
+        int n;
+
+        if (ovs_scan(s, "set_state(%"SCNu32")%n", &state, &n)) {
+            nl_msg_put_u32(actions, OVS_ACTION_ATTR_SET_STATE, state);
+            return n;
         }
     }
 
@@ -1677,25 +1677,6 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
     }
 
     {
-        uint32_t state;
-        uint32_t state_mask;
-        int n = -1;
-
-        if (mask && ovs_scan(s, "state(%"SCNu32"/%"SCNu32")%n", &state,
-                             &state_mask, &n)) {
-            nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
-            nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, state_mask);
-            return n;
-        } else if (ovs_scan(s, "state(%"SCNu32")%n", &state, &n)) {
-            nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
-            if (mask) {
-                nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, UINT32_MAX);
-            }
-            return n;
-        }
-    }
-
-    {
         uint32_t recirc_id;
         int n = -1;
 
@@ -1829,6 +1810,25 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
                 nl_msg_put_u32(mask, OVS_KEY_ATTR_IN_PORT, UINT32_MAX);
             }
             return 8 + name_len + 1;
+        }
+    }
+
+    {
+        uint32_t state;
+        uint32_t state_mask;
+        int n = -1;
+
+        if (mask && ovs_scan(s, "state(%"SCNu32"/%"SCNu32")%n", &state,
+                             &state_mask, &n)) {
+            nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
+            nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, state_mask);
+            return n;
+        } else if (ovs_scan(s, "state(%"SCNu32")%n", &state, &n)) {
+            nl_msg_put_u32(key, OVS_KEY_ATTR_STATE, state);
+            if (mask) {
+                nl_msg_put_u32(mask, OVS_KEY_ATTR_STATE, UINT32_MAX);
+            }
+            return n;
         }
     }
 
@@ -2548,14 +2548,14 @@ odp_flow_key_from_flow__(struct ofpbuf *buf, const struct flow *flow,
         nl_msg_put_u32(buf, OVS_KEY_ATTR_DP_HASH, data->dp_hash);
     }
 
-    if (data->state || (mask && mask->state)) {
-        nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, data->state);
-    }
-
     /* Add an ingress port attribute if this is a mask or 'odp_in_port'
      * is not the magical value "ODPP_NONE". */
     if (export_mask || odp_in_port != ODPP_NONE) {
         nl_msg_put_odp_port(buf, OVS_KEY_ATTR_IN_PORT, odp_in_port);
+    }
+
+    if (data->state || (mask && mask->state)) {
+        nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, data->state);
     }
 
     eth_key = nl_msg_put_unspec_uninit(buf, OVS_KEY_ATTR_ETHERNET,
@@ -2758,13 +2758,13 @@ odp_key_from_pkt_metadata(struct ofpbuf *buf, const struct pkt_metadata *md)
 
     nl_msg_put_u32(buf, OVS_KEY_ATTR_SKB_MARK, md->pkt_mark);
 
-    nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, md->state);
-
     /* Add an ingress port attribute if 'odp_in_port' is not the magical
      * value "ODPP_NONE". */
     if (md->in_port.odp_port != ODPP_NONE) {
         nl_msg_put_odp_port(buf, OVS_KEY_ATTR_IN_PORT, md->in_port.odp_port);
     }
+
+    nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, md->state);
 }
 
 /* Generate packet metadata from the given ODP flow key. */
