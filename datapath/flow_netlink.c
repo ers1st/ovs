@@ -256,7 +256,7 @@ static const int ovs_key_lens[OVS_KEY_ATTR_MAX + 1] = {
 	[OVS_KEY_ATTR_DP_HASH] = sizeof(u32),
 	[OVS_KEY_ATTR_RECIRC_ID] = sizeof(u32),
 	[OVS_KEY_ATTR_TUNNEL] = -1,
-	[OVS_KEY_ATTR_STATE] = sizeof(u32),
+//	[OVS_KEY_ATTR_STATE] = sizeof(u32),
 };
 
 static bool is_all_zero(const u8 *fp, size_t size)
@@ -473,12 +473,12 @@ static int metadata_from_nlattrs(struct sw_flow_match *match,  u64 *attrs,
 		*attrs &= ~(1ULL << OVS_KEY_ATTR_RECIRC_ID);
 	}
 
-	if (*attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
+	/*if (*attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
 		u32 state = nla_get_u32(a[OVS_KEY_ATTR_STATE]);
 
 		SW_FLOW_KEY_PUT(match, state, state, is_mask);
 		*attrs &= ~(1ULL << OVS_KEY_ATTR_STATE);
-	}
+	}*/
 
 	if (*attrs & (1ULL << OVS_KEY_ATTR_PRIORITY)) {
 		SW_FLOW_KEY_PUT(match, phy.priority,
@@ -729,14 +729,14 @@ static int ovs_key_from_nlattrs(struct sw_flow_match *match, u64 attrs,
 		attrs &= ~(1ULL << OVS_KEY_ATTR_ND);
 	}
 
-	if (attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
+	/*if (attrs & (1ULL << OVS_KEY_ATTR_STATE)) {
 		uint32_t state;
 
 		state = nla_get_u32(a[OVS_KEY_ATTR_STATE]);
 
 		SW_FLOW_KEY_PUT(match, state, state, is_mask);
 		attrs &= ~(1ULL << OVS_KEY_ATTR_STATE);
-	}
+	}*/
 
 	if (attrs != 0)
 		return -EINVAL;
@@ -894,7 +894,7 @@ int ovs_nla_get_flow_metadata(struct sw_flow *flow,
 	flow->key.phy.skb_mark = 0;
 	flow->key.ovs_flow_hash = 0;
 	flow->key.recirc_id = 0;
-	flow->key.state = 0;
+	//flow->key.state = 0;
 	memset(tun_key, 0, sizeof(flow->key.tun_key));
 
 	err = parse_flow_nlattrs(attr, a, &attrs);
@@ -924,8 +924,8 @@ int ovs_nla_put_flow(const struct sw_flow_key *swkey,
 	if (nla_put_u32(skb, OVS_KEY_ATTR_RECIRC_ID, output->recirc_id))
 		goto nla_put_failure;
 
-	if (nla_put_u32(skb, OVS_KEY_ATTR_STATE, output->state))
-		goto nla_put_failure;
+	//if (nla_put_u32(skb, OVS_KEY_ATTR_STATE, output->state))
+	//	goto nla_put_failure;
 
 	if (nla_put_u32(skb, OVS_KEY_ATTR_PRIORITY, output->phy.priority))
 		goto nla_put_failure;
@@ -1342,7 +1342,7 @@ static int validate_set(const struct nlattr *a,
 	int err;
 
 	case OVS_KEY_ATTR_PRIORITY:
-	case OVS_KEY_ATTR_STATE:
+//	case OVS_KEY_ATTR_STATE:
 	case OVS_KEY_ATTR_SKB_MARK:
 	case OVS_KEY_ATTR_ETHERNET:
 		break;

@@ -146,7 +146,7 @@ odp_execute_set_action(struct ofpbuf *packet, const struct nlattr *a,
     case OVS_KEY_ATTR_ENCAP:
     case OVS_KEY_ATTR_ETHERTYPE:
     case OVS_KEY_ATTR_IN_PORT:
-    case OVS_KEY_ATTR_STATE:
+//    case OVS_KEY_ATTR_STATE:
     case OVS_KEY_ATTR_VLAN:
     case OVS_KEY_ATTR_ICMP:
     case OVS_KEY_ATTR_ICMPV6:

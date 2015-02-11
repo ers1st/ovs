@@ -123,7 +123,7 @@ ovs_key_attr_to_string(enum ovs_key_attr attr, char *namebuf, size_t bufsize)
     case OVS_KEY_ATTR_MPLS: return "mpls";
     case OVS_KEY_ATTR_DP_HASH: return "dp_hash";
     case OVS_KEY_ATTR_RECIRC_ID: return "recirc_id";
-    case OVS_KEY_ATTR_STATE: return "state";
+//    case OVS_KEY_ATTR_STATE: return "state";
 
     case __OVS_KEY_ATTR_MAX:
     default:
@@ -795,7 +795,7 @@ odp_flow_key_attr_len(uint16_t type)
     case OVS_KEY_ATTR_ICMPV6: return sizeof(struct ovs_key_icmpv6);
     case OVS_KEY_ATTR_ARP: return sizeof(struct ovs_key_arp);
     case OVS_KEY_ATTR_ND: return sizeof(struct ovs_key_nd);
-    case OVS_KEY_ATTR_STATE: return 4;
+//    case OVS_KEY_ATTR_STATE: return 4;
 
     case OVS_KEY_ATTR_UNSPEC:
     case __OVS_KEY_ATTR_MAX:
@@ -1083,12 +1083,12 @@ format_odp_key_attr(const struct nlattr *a, const struct nlattr *ma,
         }
         break;
         
-    case OVS_KEY_ATTR_STATE:
+/*    case OVS_KEY_ATTR_STATE:
         ds_put_format(ds, "%"PRIu32, nl_attr_get_u32(a));
         if (!is_exact) {
             ds_put_format(ds, "/%"PRIu32, nl_attr_get_u32(ma));
         }
-        break;
+        break; */
 
     case OVS_KEY_ATTR_TUNNEL:
         memset(&tun_key, 0, sizeof tun_key);
@@ -1637,7 +1637,7 @@ mpls_lse_from_components(int mpls_label, int mpls_tc, int mpls_ttl, int mpls_bos
 static int
 parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
                         struct ofpbuf *key, struct ofpbuf *mask)
-{ /* TODO: gestire parsing dello state. */
+{
     {
         uint32_t priority;
         uint32_t priority_mask;
@@ -1813,7 +1813,7 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
         }
     }
 
-    {
+    /*{
         uint32_t state;
         uint32_t state_mask;
         int n = -1;
@@ -1830,7 +1830,7 @@ parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
             }
             return n;
         }
-    }
+    }*/
 
     {
         struct ovs_key_ethernet eth_key;
@@ -2554,9 +2554,9 @@ odp_flow_key_from_flow__(struct ofpbuf *buf, const struct flow *flow,
         nl_msg_put_odp_port(buf, OVS_KEY_ATTR_IN_PORT, odp_in_port);
     }
 
-    if (data->state || (mask && mask->state)) {
+  /*  if (data->state || (mask && mask->state)) {
         nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, data->state);
-    }
+    }*/
 
     eth_key = nl_msg_put_unspec_uninit(buf, OVS_KEY_ATTR_ETHERNET,
                                        sizeof *eth_key);
@@ -2764,7 +2764,7 @@ odp_key_from_pkt_metadata(struct ofpbuf *buf, const struct pkt_metadata *md)
         nl_msg_put_odp_port(buf, OVS_KEY_ATTR_IN_PORT, md->in_port.odp_port);
     }
 
-    nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, md->state);
+//    nl_msg_put_u32(buf, OVS_KEY_ATTR_STATE, md->state);
 }
 
 /* Generate packet metadata from the given ODP flow key. */
@@ -2776,7 +2776,7 @@ odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
     size_t left;
     uint32_t wanted_attrs = 1u << OVS_KEY_ATTR_PRIORITY |
         1u << OVS_KEY_ATTR_SKB_MARK | 1u << OVS_KEY_ATTR_TUNNEL |
-        1u << OVS_KEY_ATTR_IN_PORT | 1u << OVS_KEY_ATTR_STATE;
+        1u << OVS_KEY_ATTR_IN_PORT /*| 1u << OVS_KEY_ATTR_STATE*/;
 
     *md = PKT_METADATA_INITIALIZER(ODPP_NONE);
 
@@ -2821,10 +2821,10 @@ odp_key_to_pkt_metadata(const struct nlattr *key, size_t key_len,
             md->in_port.odp_port = nl_attr_get_odp_port(nla);
             wanted_attrs &= ~(1u << OVS_KEY_ATTR_IN_PORT);
             break;
-        case OVS_KEY_ATTR_STATE:
+/*        case OVS_KEY_ATTR_STATE:
             md->state = nl_attr_get_u32(nla);
             wanted_attrs &= ~(1u << OVS_KEY_ATTR_STATE);
-            break;
+            break;*/
         default:
             break;
         }
@@ -3403,10 +3403,10 @@ odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
         flow->in_port.odp_port = ODPP_NONE;
     }
 
-    if (present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_STATE)) {
+   /* if (present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_STATE)) {
     	flow->state = nl_attr_get_u32(attrs[OVS_KEY_ATTR_STATE]);
     	expected_attrs |= UINT64_C(1) << OVS_KEY_ATTR_STATE;
-    }
+    }*/
 
     /* Ethernet header. */
     if (present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_ETHERNET)) {

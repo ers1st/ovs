@@ -76,7 +76,7 @@ struct sw_flow_key {
 	} __packed phy; /* Safe when right after 'tun_key'. */
 	u32 ovs_flow_hash;		/* Datapath computed hash value.  */
 	u32 recirc_id;			/* Recirculation ID.  */
-	u32 state;              /* OpenState state. */
+//	u32 state;              /* OpenState state. */
 	struct {
 		u8     src[ETH_ALEN];	/* Ethernet source address. */
 		u8     dst[ETH_ALEN];	/* Ethernet destination address. */

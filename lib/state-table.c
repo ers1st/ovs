@@ -247,9 +247,9 @@ static void extract_key__(uint32_t **key, uint32_t *size,
         case OFPXMT13_OFB_IPV6_EXTHDR:
             //TODO_fede 
         
-        case OFPXMT13_OFB_STATE:
+        /*case OFPXMT13_OFB_STATE:
             oxm_vector[j] = MINIFLOW_GET_U32(flow, state);
-            break;
+            break;*/
         
         case OFPXMT13_OFB_FLAGS:
             oxm_vector[j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
@@ -304,7 +304,7 @@ void state_table_write_state(struct state_entry *entry, struct miniflow *flow)
 {
     *(miniflow_get_u32_values_writable(flow) +
       count_1bits(flow->map & ((UINT64_C(1) << 
-      offsetof(struct flow, state) / 4) - 1))) = entry->state;
+      offsetof(struct flow, metadata) / 4) - 1))) = entry->state;
 }
 
 void state_table_set_state(struct state_table *table, 

@@ -944,7 +944,7 @@ match_format(const struct match *match, struct ds *s, unsigned int priority)
 
     int i;
 
-    BUILD_ASSERT_DECL(FLOW_WC_SEQ == 27);
+    BUILD_ASSERT_DECL(FLOW_WC_SEQ == 26);
 
     if (priority != OFP_DEFAULT_PRIORITY) {
         ds_put_format(s, "priority=%u,", priority);
@@ -966,10 +966,10 @@ match_format(const struct match *match, struct ds *s, unsigned int priority)
         ds_put_format(s, "skb_priority=%#"PRIx32",", f->skb_priority);
     }
 
-    if (wc->masks.state) {
-        format_uint32_masked(s, "state", f->state,
-                             wc->masks.state);
-    }
+    // if (wc->masks.state) {
+    //     format_uint32_masked(s, "state", f->state,
+    //                          wc->masks.state);
+    // }
 
     if (wc->masks.dl_type) {
         skip_type = true;

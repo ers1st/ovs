@@ -322,7 +322,7 @@ enum ovs_key_attr {
 	/* Only used within kernel data path. */
 	OVS_KEY_ATTR_IPV4_TUNNEL,  /* struct ovs_key_ipv4_tunnel */
 #endif
-	OVS_KEY_ATTR_STATE,		/* u32 OpenState state. */
+//	OVS_KEY_ATTR_STATE,		/* u32 OpenState state. */
 	/* Experimental */
 
 	OVS_KEY_ATTR_MPLS = 62, /* array of struct ovs_key_mpls.

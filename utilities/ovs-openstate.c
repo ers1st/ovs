@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
     struct dpif_port dpif_port;
     struct dpif_port_dump port_dump;
     struct simap port_names;
-    const char *key_s0 = "state(0)";
-    const char *key_s1 = "state(1)";
+    const char *key_s0 = "in_port(0)";
+    const char *key_s1 = "in_port(1)";
     const char *actions_s0 = "set_state(1)";
     const char *actions_s1 = "set_state(0)";
     struct key_extractor read_key, write_key;
