@@ -27,8 +27,14 @@ int main(int argc, char *argv[])
     struct dpif_port dpif_port;
     struct dpif_port_dump port_dump;
     struct simap port_names;
-    const char *key_s0 = "state(0)";
-    const char *key_s1 = "state(1)";
+    const char *key_s0 = "state(0), " 
+			 "eth(src=00:11:22:33:44:55/00:00:00:00:00:01,"
+                             "dst=00:11:22:33:44:55/00:00:00:00:00:11), "
+                         "eth_type(0x6ff/0x0)";
+    const char *key_s1 = "state(1), " 
+			 "eth(src=00:11:22:33:44:55/00:00:00:00:00:01,"
+                             "dst=00:11:22:33:44:55/00:00:00:00:00:11), "
+                         "eth_type(0x6ff/0x0)";;
     const char *actions_s0 = "set_state(1)";
     const char *actions_s1 = "set_state(0)";
     struct key_extractor read_key, write_key;
@@ -78,7 +84,9 @@ int main(int argc, char *argv[])
      */
 
     openstate_add_flow(dpif, NULL, &stats0, key_s0, actions_s0);
+    printf("Added flow 0\n");
     openstate_add_flow(dpif, NULL, &stats1, key_s1, actions_s1);
+    printf("Added flow 1\n");    
 
     printf("Running bridge.\n");
     for(;;) {
