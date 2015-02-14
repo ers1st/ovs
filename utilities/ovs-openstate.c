@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "dpif.h"
+#include "dpif-netdev.h"
 #include "dpif-provider.h"
 #include "openflow/openflow.h"
 #include "odp-util.h"
@@ -27,14 +28,17 @@ int main(int argc, char *argv[])
     struct dpif_port dpif_port;
     struct dpif_port_dump port_dump;
     struct simap port_names;
+    struct flow flow;
+    struct miniflow miniflow;
+
     const char *key_s0 = "state(0), " 
-			 "eth(src=00:11:22:33:44:55/00:00:00:00:00:01,"
-                             "dst=00:11:22:33:44:55/00:00:00:00:00:11), "
+                         "eth(src=08:00:27:9f:08:b8,"
+                             "dst=08:00:27:9f:08:b8), "
                          "eth_type(0x6ff/0x0)";
     const char *key_s1 = "state(1), " 
-			 "eth(src=00:11:22:33:44:55/00:00:00:00:00:01,"
-                             "dst=00:11:22:33:44:55/00:00:00:00:00:11), "
-                         "eth_type(0x6ff/0x0)";;
+                         "eth(src=08:00:27:9f:08:b8,"
+                             "dst=08:00:27:9f:08:b8), "
+                         "eth_type(0x6ff/0x0)";
     const char *actions_s0 = "set_state(1)";
     const char *actions_s1 = "set_state(0)";
     struct key_extractor read_key, write_key;
@@ -87,6 +91,14 @@ int main(int argc, char *argv[])
     printf("Added flow 0\n");
     openstate_add_flow(dpif, NULL, &stats1, key_s1, actions_s1);
     printf("Added flow 1\n");    
+
+    /* Aggiungo le entry nella state table. */
+    flow.in_port.odp_port = PORT;
+
+    miniflow_init(&miniflow, &flow);
+
+    dpif_set_state(dpif, &miniflow, STATE_DEFAULT, NULL, 0);
+    miniflow_destroy(&miniflow);
 
     printf("Running bridge.\n");
     for(;;) {

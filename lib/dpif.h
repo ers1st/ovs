@@ -649,6 +649,8 @@ int dpif_recv(struct dpif *, uint32_t handler_id, struct dpif_upcall *,
 void dpif_recv_purge(struct dpif *);
 void dpif_recv_wait(struct dpif *, uint32_t handler_id);
 void dpif_set_extractor(struct dpif *, struct key_extractor *, bool);
+void dpif_set_state(struct dpif *, const struct miniflow *, uint32_t, 
+                    uint32_t *, uint32_t);
 
 /* Miscellaneous. */
 

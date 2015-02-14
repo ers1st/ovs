@@ -1447,7 +1447,18 @@ dpif_recv_wait(struct dpif *dpif, uint32_t handler_id)
 void 
 dpif_set_extractor(struct dpif *dpif, struct key_extractor *ke, bool update)
 {
-    dpif->dpif_class->set_extractor(dpif, ke, update);
+    if (dpif->dpif_class->set_extractor) {
+        dpif->dpif_class->set_extractor(dpif, ke, update);
+    }
+}
+
+void
+dpif_set_state(struct dpif *dpif, const struct miniflow *flow, uint32_t state, 
+               uint32_t *k, uint32_t k_size)
+{
+    if (dpif->dpif_class->set_state) {
+        dpif->dpif_class->set_state(dpif, flow, state, k, k_size);
+    }    
 }
 
 /* Obtains the NetFlow engine type and engine ID for 'dpif' into '*engine_type'

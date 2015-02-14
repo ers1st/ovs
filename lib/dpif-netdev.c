@@ -1636,6 +1636,14 @@ dpif_netdev_set_extractor(struct dpif *dpif, struct key_extractor *ke,
     state_table_set_extractor(&dp->state_table, ke, update);
 }
 
+static void
+dpif_netdev_set_state(struct dpif *dpif, const struct miniflow *flow, 
+                      uint32_t state, uint32_t *k, uint32_t k_size)
+{
+    struct dp_netdev *dp = get_dp_netdev(dpif);
+    state_table_set_state(&dp->state_table, flow, state, k, k_size);
+}
+
 static int
 dpif_netdev_handlers_set(struct dpif *dpif, uint32_t n_handlers)
 {
@@ -2305,6 +2313,7 @@ const struct dpif_class dpif_netdev_class = {
     dpif_netdev_recv_wait,
     dpif_netdev_recv_purge,
     dpif_netdev_set_extractor,
+    dpif_netdev_set_state,
 };
 
 static void

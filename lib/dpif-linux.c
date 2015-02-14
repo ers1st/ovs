@@ -1919,7 +1919,8 @@ const struct dpif_class dpif_linux_class = {
     dpif_linux_recv,
     dpif_linux_recv_wait,
     dpif_linux_recv_purge,
-    NULL,   /* OpenState not yet implemented. */
+    NULL,   /* set_extractor */
+    NULL,   /* set_state */
 };
 
 static int

@@ -3026,7 +3026,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
         int i;
 
         if (!size || size % sizeof(ovs_be32)) {
-            printf("Stampa 10\n");
             return ODP_FIT_ERROR;
         }
 
@@ -3034,12 +3033,10 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
             expected_attrs |= (UINT64_C(1) << OVS_KEY_ATTR_MPLS);
 
             if (!(present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_MPLS))) {
-                printf("stampa 11\n");
                 return ODP_FIT_TOO_LITTLE;
             }
         } else if (present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_MPLS)) {
             if (flow->mpls_lse[0] && flow->dl_type != htons(0xffff)) {
-                printf("Stampa 12\n");
                 return ODP_FIT_ERROR;
             }
             expected_attrs |= (UINT64_C(1) << OVS_KEY_ATTR_MPLS);
@@ -3049,7 +3046,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
             flow->mpls_lse[i] = mpls_lse[i];
         }
         if (n > FLOW_MAX_MPLS_LABELS) {
-            printf("stampa 13\n");
             return ODP_FIT_TOO_MUCH;
         }
 
@@ -3057,7 +3053,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
             /* BOS may be set only in the innermost label. */
             for (i = 0; i < n - 1; i++) {
                 if (flow->mpls_lse[i] & htonl(MPLS_BOS_MASK)) {
-                    printf("stampa 14\n");
                     return ODP_FIT_ERROR;
                 }
             }
@@ -3065,7 +3060,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
             /* BOS must be set in the innermost label. */
             if (n < FLOW_MAX_MPLS_LABELS
                 && !(flow->mpls_lse[n - 1] & htonl(MPLS_BOS_MASK))) {
-                printf("stampa 15\n");
                 return ODP_FIT_TOO_LITTLE;
             }
         }
@@ -3090,7 +3084,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
                 check_len = sizeof *ipv4_key;
                 expected_bit = OVS_KEY_ATTR_IPV4;
             } else if (!odp_to_ovs_frag(ipv4_key->ipv4_frag, flow)) {
-                printf("stampa 16\n");
                 return ODP_FIT_ERROR;
             }
         }
@@ -3114,7 +3107,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
                 check_len = sizeof *ipv6_key;
                 expected_bit = OVS_KEY_ATTR_IPV6;
             } else if (!odp_to_ovs_frag(ipv6_key->ipv6_frag, flow)) {
-                printf("stampa 17\n");
                 return ODP_FIT_ERROR;
             }
         }
@@ -3132,7 +3124,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
             if (!is_mask && (arp_key->arp_op & htons(0xff00))) {
                 VLOG_ERR_RL(&rl, "unsupported ARP opcode %"PRIu16" in flow "
                             "key", ntohs(arp_key->arp_op));
-                printf("stampa 18\n");
                 return ODP_FIT_ERROR;
             }
             flow->nw_proto = ntohs(arp_key->arp_op);
@@ -3151,7 +3142,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
     if (check_len > 0) { /* Happens only when 'is_mask'. */
         if (!is_all_zeros(check_start, check_len) &&
             flow->dl_type != htons(0xffff)) {
-            printf("stampa 19\n");
             return ODP_FIT_ERROR;
         } else {
             expected_attrs |= UINT64_C(1) << expected_bit;
@@ -3254,7 +3244,6 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
                                           sizeof *nd_key) &&
                             (flow->tp_src != htons(0xffff) ||
                              flow->tp_dst != htons(0xffff))) {
-                            printf("stampa 20\n");
                             return ODP_FIT_ERROR;
                         } else {
                             expected_attrs |= UINT64_C(1) << OVS_KEY_ATTR_ND;
@@ -3266,14 +3255,12 @@ parse_l2_5_onward(const struct nlattr *attrs[OVS_KEY_ATTR_MAX + 1],
     }
     if (is_mask && expected_bit != OVS_KEY_ATTR_UNSPEC) {
         if ((flow->tp_src || flow->tp_dst) && flow->nw_proto != 0xff) {
-            printf("stampa 21\n");
             return ODP_FIT_ERROR;
         } else {
             expected_attrs |= UINT64_C(1) << expected_bit;
         }
     }
 done:
-    printf("stampa 22\n");
     return check_expectations(present_attrs, out_of_range_attr, expected_attrs,
                               key, key_len);
 }
@@ -3402,7 +3389,6 @@ odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
 
         res = odp_tun_key_from_attr(attrs[OVS_KEY_ATTR_TUNNEL], &flow->tunnel);
         if (res == ODP_FIT_ERROR) {
-            printf("stampa 2\n");
             return ODP_FIT_ERROR;
         } else if (res == ODP_FIT_PERFECT) {
             expected_attrs |= UINT64_C(1) << OVS_KEY_ATTR_TUNNEL;
@@ -3440,18 +3426,14 @@ odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
     /* Get Ethertype or 802.1Q TPID or FLOW_DL_TYPE_NONE. */
     if (!parse_ethertype(attrs, present_attrs, &expected_attrs, flow,
         src_flow)) {
-        printf("stampa 3\n");
         return ODP_FIT_ERROR;
     }
-    printf("stampa 3.1\n");
     if (is_mask
         ? (src_flow->vlan_tci & htons(VLAN_CFI)) != 0
         : src_flow->dl_type == htons(ETH_TYPE_VLAN)) {
-        printf("stampa 4\n");
         return parse_8021q_onward(attrs, present_attrs, out_of_range_attr,
                                   expected_attrs, flow, key, key_len, src_flow);
     }
-    printf("stampa 4.1\n");
     if (is_mask) {
         flow->vlan_tci = htons(0xffff);
         if (present_attrs & (UINT64_C(1) << OVS_KEY_ATTR_VLAN)) {
@@ -3459,7 +3441,6 @@ odp_flow_key_to_flow__(const struct nlattr *key, size_t key_len,
             expected_attrs |= (UINT64_C(1) << OVS_KEY_ATTR_VLAN);
         }
     }
-    printf("stampa 5\n");
     return parse_l2_5_onward(attrs, present_attrs, out_of_range_attr,
                              expected_attrs, flow, key, key_len, src_flow);
 }

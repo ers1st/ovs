@@ -287,13 +287,13 @@ struct state_entry *state_table_lookup(struct state_table *table,
     HMAP_FOR_EACH_WITH_HASH(e, hmap_node, jhash_words(key, key_size, 0), 
                             &table->state_entries) {
             if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
-                VLOG_WARN_RL(&rl, "Found corresponding state %u", e->state);
+                VLOG_WARN_RL(&rl, "Found matching state value %u.", e->state);
                 return e;
             }
     }
 
     if (e == NULL) {
-        VLOG_WARN_RL(&rl, "Not found the corresponding state value\n");
+        VLOG_WARN_RL(&rl, "Matching state value not found.");
         return &table->default_state_entry;
     }
     else
@@ -325,16 +325,16 @@ void state_table_set_state(struct state_table *table,
         //                                printf("%02X", key[h]);}
         //                                printf("\n");
     } else {
+        VLOG_WARN_RL(&rl, "Flow not provided, trying to insert entry using key.");
         key = k;
         key_size = k_size;
-        printf("state table no pkt exist \n");
     }
 
     hash_key = jhash_words(key, key_size, 0);
 
     HMAP_FOR_EACH_WITH_HASH(e, hmap_node, hash_key, &table->state_entries) {
         if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
-            VLOG_WARN_RL(&rl, "state value is %u updated to hash map", state);
+            VLOG_WARN_RL(&rl, "State value %u updated into state table.", state);
             e->state = state;
             return;
         }
@@ -345,7 +345,7 @@ void state_table_set_state(struct state_table *table,
     e->key_size = key_size;
     e->state = state;
     hmap_insert(&table->state_entries, &e->hmap_node, hash_key);
-    VLOG_WARN_RL(&rl, "state value is %u inserted to hash map", e->state);
+    VLOG_WARN_RL(&rl, "State value %u inserted into state table.", e->state);
 }
 
 void state_table_set_extractor(struct state_table *table, 

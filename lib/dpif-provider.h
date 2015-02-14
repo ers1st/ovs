@@ -441,6 +441,11 @@ struct dpif_class {
     /* Set the key extractor required for OpenState processing. */
     void (*set_extractor)(struct dpif *dpif, struct key_extractor *ke,
                           bool update);
+    /* Set state in the state table for the selected flow entry, or creates a
+     * new one.
+     * */
+    void (*set_state)(struct dpif *dpif, const struct miniflow *flow, 
+                      uint32_t state, uint32_t *k, uint32_t k_size);
 };
 
 extern const struct dpif_class dpif_linux_class;
