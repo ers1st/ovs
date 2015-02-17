@@ -302,9 +302,17 @@ struct state_entry *state_table_lookup(struct state_table *table,
 
 void state_table_write_state(struct state_entry *entry, struct miniflow *flow)
 {
+    uint32_t state;
+    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+
     *(miniflow_get_u32_values_writable(flow) +
       count_1bits(flow->map & ((UINT64_C(1) << 
       offsetof(struct flow, state) / 4) - 1))) = entry->state;
+
+    state = *(miniflow_get_u32_values(flow) +
+            count_1bits(flow->map & ((UINT64_C(1) << 
+            offsetof(struct flow, state) / 4) - 1)));
+    VLOG_WARN_RL(&rl, "State %u inserted into flow.", state);
 }
 
 void state_table_set_state(struct state_table *table, 
