@@ -15,12 +15,13 @@
 static void openstate_add_flow(struct dpif *, struct simap *, 
                                struct dpif_flow_stats *, const char *, 
                                const char *);
+static void openstate_add_if(struct dpif *, const char *, odp_port_t *);
 
 int main(int argc, char *argv[])
 {
     struct dpif *dpif;
-    odp_port_t port_A, port_B;
-    struct netdev *netdev_A, *netdev_B;
+    odp_port_t port_A = ODPP_NONE;
+    odp_port_t port_B = ODPP_NONE;
     struct dpif_flow_stats stats0, stats1;
     struct dpif_port dpif_port;
     struct dpif_port_dump port_dump;
@@ -51,54 +52,8 @@ int main(int argc, char *argv[])
     printf("Created datapath with name: %s, and type: %s\n", 
            dpif->base_name, dpif->dpif_class->type);
     
-    if (netdev_open("eth1", dpif_port_open_type("netdev", "system"), 
-                    &netdev_A)) {
-        fprintf(stderr, "Error in opening netdev\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (netdev_open("eth2", dpif_port_open_type("netdev", "system"), 
-                    &netdev_B)) {
-        fprintf(stderr, "Error in opening netdev\n");
-        exit(EXIT_FAILURE);
-    }
-
-
-    error = dpif_port_add(dpif, netdev_A, &port_A);
-    if (error) {
-        fprintf(stderr, "Error %d adding port.\n", error);
-        netdev_close(netdev_A);
-        dpif_close(dpif);
-        exit(EXIT_FAILURE);
-    }
-    error = netdev_turn_flags_on(netdev_A, NETDEV_UP, NULL);
-    if (error) {
-        fprintf(stderr, "Error %d setting flags.\n", error);
-        netdev_close(netdev_A);
-        dpif_close(dpif);
-        exit(EXIT_FAILURE);
-    }
-    netdev_close(netdev_A);
-    printf("Added port %u to datapath.\n", port_A);
-
-
-    error = dpif_port_add(dpif, netdev_B, &port_B);
-    if (error) {
-        fprintf(stderr, "Error %d adding port.\n", error);
-        netdev_close(netdev_B);
-        dpif_close(dpif);
-        exit(EXIT_FAILURE);
-    }
-    error = netdev_turn_flags_on(netdev_B, NETDEV_UP, NULL);
-    if (error) {
-        fprintf(stderr, "Error %d setting flags.\n", error);
-        netdev_close(netdev_B);
-        dpif_close(dpif);
-        exit(EXIT_FAILURE);
-    }
-    netdev_close(netdev_B);
-    printf("Added port %u to datapath.\n", port_B);
-
+    openstate_add_if(dpif, "eth1", &port_A);
+    openstate_add_if(dpif, "eth2", &port_B);
 
     output_port = odp_to_u32(port_B);
     sprintf(actions_s1, "%u", output_port);
@@ -174,4 +129,36 @@ static void openstate_add_flow(struct dpif *dpif, struct simap *port_names,
     ofpbuf_uninit(&key);
     ofpbuf_uninit(&mask);
     ofpbuf_uninit(&actions);
+}
+
+static void openstate_add_if(struct dpif *dpif, const char *name, 
+                             odp_port_t *port_no)
+{
+    struct netdev *netdev = NULL;
+    int error;
+
+    error = netdev_open(name, dpif_port_open_type("netdev", "system"), &netdev);
+    if (error) {
+        fprintf(stderr, "Error in opening netdev\n");
+        exit(EXIT_FAILURE);
+    }
+
+    error = dpif_port_add(dpif, netdev, port_no);
+    if (error) {
+        fprintf(stderr, "Error %d adding port.\n", error);
+        netdev_close(netdev);
+        dpif_close(dpif);
+        exit(EXIT_FAILURE);
+    }
+
+    error = netdev_turn_flags_on(netdev, NETDEV_UP, NULL);
+    if (error) {
+        fprintf(stderr, "Error %d setting flags.\n", error);
+        netdev_close(netdev);
+        dpif_close(dpif);
+        exit(EXIT_FAILURE);
+    }
+
+    netdev_close(netdev);
+    printf("Added port %u to datapath.\n", *port_no);
 }
