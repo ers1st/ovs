@@ -967,8 +967,7 @@ match_format(const struct match *match, struct ds *s, unsigned int priority)
     }
 
     if (wc->masks.state) {
-        format_uint32_masked(s, "state", f->state,
-                             wc->masks.state);
+        ds_put_format(s, "state=%#"PRIx32",", f->state);
     }
 
     if (wc->masks.dl_type) {

@@ -1637,7 +1637,7 @@ mpls_lse_from_components(int mpls_label, int mpls_tc, int mpls_ttl, int mpls_bos
 static int
 parse_odp_key_mask_attr(const char *s, const struct simap *port_names,
                         struct ofpbuf *key, struct ofpbuf *mask)
-{ /* TODO: gestire parsing dello state. */
+{
     {
         uint32_t priority;
         uint32_t priority_mask;
