@@ -41,7 +41,6 @@ void state_table_init(struct state_table *table)
 void state_table_destroy(struct state_table *table) 
 {
     hmap_destroy(&table->state_entries);
-    free(table);
 }
 
 /**
@@ -276,7 +275,7 @@ static void extract_key__(uint32_t **key, uint32_t *size,
 struct state_entry *state_table_lookup(struct state_table *table, 
                                        struct miniflow *flow)
 {
-    struct state_entry * e = NULL;  
+    struct state_entry *e = NULL;  
     uint32_t *key;
     uint32_t key_size;
 
