@@ -24,20 +24,30 @@ int main(int argc, char *argv[])
     odp_port_t port_B = ODPP_NONE;
     uint32_t output_port;
 
-    const char *key_s0 = //"state(0), " 
+    const char *key_s0 = "state(0), "
+                         "in_port(1), "
                          "eth(src=08:00:27:26:E3:BF,"
-                             "dst=FF:FF:FF:FF:FF:FF), "
-                         "eth_type(0x0806), "
-                         "arp(sip=10.0.0.1,"
-                             "tip=10.0.0.2,"
-                             "op=1,"
-                             "sha=08:00:27:26:E3:BF,"
-                             "tha=00:00:00:00:00:00)";
-                       //  "udp(src=0x0/0x0,dst=10000/0xffff)";
-    const char *key_s1 = "state(1), " 
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749,dst=10000)";
+    const char *key_s1 = "state(1), "
+                         "in_port(1), "
                          "eth(src=08:00:27:26:E3:BF,"
-                             "dst=FF:FF:FF:FF:FF:FF), "
-                         "eth_type(0xffff/0x0)";
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749/0x0,dst=10000/0x0)";
     const char *actions_s0 = "set_state(1)";
     const char actions_s1[15];
     struct key_extractor read_key, write_key;
