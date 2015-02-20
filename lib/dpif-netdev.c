@@ -2050,9 +2050,6 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
         uint32_t buf[FLOW_U32S];
     } key;
     struct state_entry *state_entry;
-    struct flow *big_flow;
-
-    big_flow = xmalloc(sizeof *big_flow);
 
     if (ofpbuf_size(packet) < ETH_HEADER_LEN) {
         ofpbuf_delete(packet);
@@ -2062,24 +2059,16 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
     miniflow_initialize(&key.flow, key.buf);
     miniflow_extract(packet, md, &key.flow);
 
-    /*DEBUG*/
-    miniflow_expand(&key.flow, big_flow);
-    flow_print(stderr, big_flow);
-    printf("\n");
-    /*FINE DEBUG*/
     /* Lookup state table and set metadata. */
     state_entry = state_table_lookup(&dp->state_table, &key.flow);
     state_table_write_state(state_entry, &key.flow);
-    memset(big_flow, 0, sizeof *big_flow);
-    miniflow_expand(&key.flow, big_flow);
-    fprintf(stderr, "State is %u.\n", big_flow->state);
     /* TODO: edit flow_print() to effectively print state value. */
-    free(big_flow);
     netdev_flow = dp_netdev_lookup_flow(dp, &key.flow);
+    printf("Match %sfound in the flow table.\n", 
+           netdev_flow == NULL ? "not " : "");
     if (netdev_flow) {
         struct dp_netdev_actions *actions;
 
-        printf("netdev_flow != null\n");
         dp_netdev_flow_used(netdev_flow, packet, &key.flow);
 
         actions = dp_netdev_flow_get_actions(netdev_flow);
@@ -2087,7 +2076,6 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
                                   actions->actions, actions->size);
         dp_netdev_count_packet(dp, DP_STAT_HIT);
     } else if (dp->handler_queues) {
-        printf("netdev_flow == null, dp->handler_queues != null\n");
         dp_netdev_count_packet(dp, DP_STAT_MISS);
         dp_netdev_output_userspace(dp, packet,
                                    miniflow_hash_5tuple(&key.flow, 0)
@@ -2095,7 +2083,6 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
                                    DPIF_UC_MISS, &key.flow, NULL);
         ofpbuf_delete(packet);
     }
-    printf("end of dp_netdev_input\n");
 }
 
 static void

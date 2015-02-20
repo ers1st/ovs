@@ -23,33 +23,112 @@ int main(int argc, char *argv[])
     odp_port_t port_A = ODPP_NONE;
     odp_port_t port_B = ODPP_NONE;
     uint32_t output_port;
+    const char *key_s01 = "state(0), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749,dst=5123)";
+    const char *key_s10 = "state(1), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749/0xff,dst=0/0x0)";
+    const char *key_s12 = "state(1), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749,dst=6234)";
+    const char *key_s20 = "state(2), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749/0xff,dst=0/0x0)";
+    const char *key_s23 = "state(2), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749,dst=7345)";
+    const char *key_s30 = "state(3), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749/0xff,dst=0/0x0)";
+    const char *key_s34 = "state(3), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749,dst=8456)";
+    const char *key_s44 = "state(4), "
+                         "in_port(1), "
+                         "eth(src=08:00:27:26:E3:BF,"
+                             "dst=08:00:27:20:6C:59), "
+                         "eth_type(0x0800), "
+                         "ipv4(src=10.0.0.1,"
+                              "dst=10.0.0.2,"
+                              "proto=0x11,"
+                              "tos=0,"
+                              "ttl=64,"
+                              "frag=no), "
+                         "udp(src=48749,dst=22)";
 
-    const char *key_s0 = "state(0), "
-                         "in_port(1), "
-                         "eth(src=08:00:27:26:E3:BF,"
-                             "dst=08:00:27:20:6C:59), "
-                         "eth_type(0x0800), "
-                         "ipv4(src=10.0.0.1,"
-                              "dst=10.0.0.2,"
-                              "proto=0x11,"
-                              "tos=0,"
-                              "ttl=64,"
-                              "frag=no), "
-                         "udp(src=48749,dst=10000)";
-    const char *key_s1 = "state(1), "
-                         "in_port(1), "
-                         "eth(src=08:00:27:26:E3:BF,"
-                             "dst=08:00:27:20:6C:59), "
-                         "eth_type(0x0800), "
-                         "ipv4(src=10.0.0.1,"
-                              "dst=10.0.0.2,"
-                              "proto=0x11,"
-                              "tos=0,"
-                              "ttl=64,"
-                              "frag=no), "
-                         "udp(src=48749/0x0,dst=10000/0x0)";
-    const char *actions_s0 = "set_state(1)";
-    const char actions_s1[15];
+    const char *actions_s01 = "set_state(1)";
+    const char *actions_s10 = "set_state(0)";
+    const char *actions_s12 = "set_state(2)";
+    const char *actions_s20 = "set_state(0)";
+    const char *actions_s23 = "set_state(3)";
+    const char *actions_s30 = "set_state(0)";
+    const char *actions_s34 = "set_state(4)";
+
+    const char actions_s44[15];
     struct key_extractor read_key, write_key;
 
     if(argc != 1) {
@@ -67,7 +146,7 @@ int main(int argc, char *argv[])
     openstate_add_if(dpif, "eth2", &port_B);
 
     output_port = odp_to_u32(port_B);
-    sprintf(actions_s1, "%u", output_port);
+    sprintf(actions_s44, "%u", output_port);
     
     read_key.field_count = 1;
     read_key.fields[0] = OFPXMT12_OFB_IPV4_SRC;
@@ -80,18 +159,25 @@ int main(int argc, char *argv[])
 
 
     /**
-     * Implemento una semplice macchina a stati. Se lo stato del flusso è 0,
-     * la set state lo impone a 1, se è 1 lo impone a 0.  Quindi la chiave
-     * su cui viene effettuato il match è composta dal solo state.
-     * Nome flusso      key         azione
-     * 0                0           set_state(1)
-     * 1                1           set_state(0)
+     * Implemento il port knocking, come definito nel paper su OpenState.
      */
 
-    openstate_add_flow(dpif, key_s0, actions_s0);
-    printf("Added flow 0\n");
-    openstate_add_flow(dpif, key_s1, actions_s1);
-    printf("Added flow 1\n");    
+    openstate_add_flow(dpif, key_s01, actions_s01);
+    printf("Added flow 01\n");
+    openstate_add_flow(dpif, key_s12, actions_s12);
+    printf("Added flow 12\n");
+    openstate_add_flow(dpif, key_s23, actions_s23);
+    printf("Added flow 23\n");
+    openstate_add_flow(dpif, key_s34, actions_s34);
+    printf("Added flow 34\n");
+    openstate_add_flow(dpif, key_s44, actions_s44);
+    printf("Added flow 44\n");
+    openstate_add_flow(dpif, key_s10, actions_s10);
+    printf("Added flow 10\n");
+    openstate_add_flow(dpif, key_s20, actions_s20);
+    printf("Added flow 20\n");
+    openstate_add_flow(dpif, key_s30, actions_s30);
+    printf("Added flow 30\n");
 
     printf("Dumping flows.\n");
     openstate_dump_flows(dpif);
@@ -114,7 +200,6 @@ static void openstate_add_flow(struct dpif *dpif, const char *key_s,
     struct dpif_port dpif_port;
     struct dpif_port_dump port_dump;
     struct dpif_flow_stats stats;
-    struct ds s;
 
     simap_init(&port_names);
     DPIF_PORT_FOR_EACH (&dpif_port, &port_dump, dpif) {
@@ -137,8 +222,6 @@ static void openstate_add_flow(struct dpif *dpif, const char *key_s,
         ovs_error(error, "Failed to convert actions string %s", actions_s);
     }
 
-    printf("La dimensione della mask è %u.\n", ofpbuf_size(&mask));
-
     error = dpif_flow_put(dpif, DPIF_FP_CREATE, 
                           ofpbuf_data(&key), ofpbuf_size(&key), 
                           ofpbuf_size(&mask) == 0 ? NULL : ofpbuf_data(&mask),
@@ -152,12 +235,6 @@ static void openstate_add_flow(struct dpif *dpif, const char *key_s,
     ofpbuf_uninit(&key);
     ofpbuf_uninit(&mask);
     ofpbuf_uninit(&actions);
-
-    /* Print statistics. */
-    ds_init(&s);
-    dpif_flow_stats_format(&stats, &s);
-    puts(ds_cstr(&s));
-    ds_destroy(&s);
 }
 
 static void openstate_add_if(struct dpif *dpif, const char *name, 

@@ -279,20 +279,20 @@ struct state_entry *state_table_lookup(struct state_table *table,
     uint32_t *key;
     uint32_t key_size;
 
-    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(20, 30);
 
     extract_key__(&key, &key_size, &table->read_key, flow);
 
     HMAP_FOR_EACH_WITH_HASH(e, hmap_node, jhash_words(key, key_size, 0), 
                             &table->state_entries) {
             if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
-                VLOG_WARN_RL(&rl, "Found matching state value %u.", e->state);
+                VLOG_INFO_RL(&rl, "Found matching state value %u.", e->state);
                 return e;
             }
     }
 
     if (e == NULL) {
-        VLOG_WARN_RL(&rl, "Matching state value not found.");
+        VLOG_INFO_RL(&rl, "Matching state value not found.");
         return &table->default_state_entry;
     }
     else
@@ -301,17 +301,13 @@ struct state_entry *state_table_lookup(struct state_table *table,
 
 void state_table_write_state(struct state_entry *entry, struct miniflow *flow)
 {
-    uint32_t state;
-    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(20, 30);
 
     *(miniflow_get_u32_values_writable(flow) +
       count_1bits(flow->map & ((UINT64_C(1) << 
       offsetof(struct flow, state) / 4) - 1))) = entry->state;
 
-    state = *(miniflow_get_u32_values(flow) +
-            count_1bits(flow->map & ((UINT64_C(1) << 
-            offsetof(struct flow, state) / 4) - 1)));
-    VLOG_WARN_RL(&rl, "State %u inserted into flow.", state);
+    VLOG_INFO_RL(&rl, "State %u inserted into flow.", entry->state);
 }
 
 void state_table_set_state(struct state_table *table, 
@@ -322,7 +318,7 @@ void state_table_set_state(struct state_table *table,
     uint32_t key_size, hash_key;    
     struct state_entry *e;
 
-    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+    static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(20, 30);
 
     if (flow != NULL) {
         extract_key__(&key, &key_size, &table->write_key, flow);
@@ -341,7 +337,7 @@ void state_table_set_state(struct state_table *table,
 
     HMAP_FOR_EACH_WITH_HASH(e, hmap_node, hash_key, &table->state_entries) {
         if (key_size == e->key_size && !memcmp(key, e->key, key_size)) {
-            VLOG_WARN_RL(&rl, "State value %u updated into state table.", state);
+            VLOG_INFO_RL(&rl, "State value %u updated into state table.", state);
             e->state = state;
             return;
         }
@@ -352,7 +348,7 @@ void state_table_set_state(struct state_table *table,
     e->key_size = key_size;
     e->state = state;
     hmap_insert(&table->state_entries, &e->hmap_node, hash_key);
-    VLOG_WARN_RL(&rl, "State value %u inserted into state table.", e->state);
+    VLOG_INFO_RL(&rl, "State value %u inserted into state table.", e->state);
 }
 
 void state_table_set_extractor(struct state_table *table, 

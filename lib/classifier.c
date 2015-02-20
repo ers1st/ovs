@@ -1139,14 +1139,9 @@ miniflow_and_mask_matches_miniflow(const struct miniflow *flow,
     const uint32_t *flowp = miniflow_get_u32_values(flow);
     const uint32_t *maskp = miniflow_get_u32_values(&mask->masks);
     uint32_t target_u32;
-    int i = 0;
 
-    printf("miniflow_and_mask_matches_miniflow\n");
     MINIFLOW_FOR_EACH_IN_MAP(target_u32, target, mask->masks.map) {
-        printf("Controllo l'attributo %d\n", i);
-        i++;
         if ((*flowp++ ^ target_u32) & *maskp++) {
-            printf("Ritorna false\n");
             return false;
         }
     }
@@ -1161,11 +1156,6 @@ find_match_miniflow(const struct cls_subtable *subtable,
 {
     struct cls_match *rule;
 
-    printf("find match miniflow\n");
-    printf("subtable is %snull\n", subtable == NULL ? "" : "not ");
-    printf("miniflow is %snull\n", flow == NULL ? "" : "not ");
-    printf("There are %d rules in the subtable\n", subtable->n_rules);
-    printf("Hash is %u\n", hash);
     HMAP_FOR_EACH_WITH_HASH (rule, hmap_node, hash, &subtable->rules) {
         if (miniflow_and_mask_matches_miniflow(&rule->flow, &subtable->mask,
                                                flow)) {
@@ -1189,7 +1179,6 @@ struct cls_rule *classifier_lookup_miniflow_first(const struct classifier *cls_,
     struct cls_classifier *cls = cls_->cls;
     struct cls_subtable *subtable;
     struct cls_subtable_entry *iter;
-    printf("There are %d rules in total\n", cls->n_rules);
 
     CLS_SUBTABLE_CACHE_FOR_EACH (subtable, iter, &cls->subtables_priority) {
         struct cls_match *rule;
