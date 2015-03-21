@@ -120,11 +120,11 @@ enum oxm12_ofb_match_fields {
 #define OFPXMT13_MASK ((1ULL << (OFPXMT13_OFB_IPV6_EXTHDR + 1)) - 1)
 
     /* Following added in OpenFlow 1.4. */
-    OFPXMT14_OFB_PBB_UCA = 41,  /* PBB UCA header field. */
+    OFPXMT14_OFB_PBB_UCA = 42,  /* PBB UCA header field. */
 #define OFPXMT14_MASK (1ULL << OFPXMT14_OFB_PBB_UCA)
 
     /* Following added in OpenFlow 1.5. */
-    OFPXMT15_OFB_TCP_FLAGS = 42,  /* TCP flags. */
+    OFPXMT15_OFB_TCP_FLAGS = 43,  /* TCP flags. */
 #define OFPXMT15_MASK (1ULL << OFPXMT15_OFB_TCP_FLAGS)
  };
 

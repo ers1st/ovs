@@ -244,20 +244,22 @@ static void extract_key__(uint32_t **key, uint32_t *size,
             break;  
         
         case OFPXMT13_OFB_IPV6_EXTHDR:
-            //TODO_fede 
+            //TODO fede
+        	break;
         
         case OFPXMT13_OFB_STATE:
             oxm_vector[j] = MINIFLOW_GET_U32(flow, state);
             break;
         
-        case OFPXMT13_OFB_FLAGS:
-            oxm_vector[j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t, 
-                offsetof(struct flow, tunnel) + offsetof(struct flow_tnl, flags));
-            break;    
+//        case OFPXMT13_OFB_FLAGS:
+//            oxm_vector[j] = (uint32_t) MINIFLOW_GET_TYPE(flow, uint16_t,
+//                offsetof(struct flow, tunnel) + offsetof(struct flow_tnl, flags));
+//            break;
         
         case OFPXMT14_OFB_PBB_UCA:
-            //TODO_fede  
-        
+            //TODO fede
+        	break;
+
         case OFPXMT15_OFB_TCP_FLAGS:
             oxm_vector[j] = (uint32_t) miniflow_get_tcp_flags(flow);
             break;

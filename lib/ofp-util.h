@@ -523,6 +523,9 @@ enum ofputil_capabilities {
 
     /* OpenFlow 1.2 and 1.3 share this capability */
     OFPUTIL_C_PORT_BLOCKED   = 1 << 8,  /* Switch will block looping ports */
+
+	/* OpenFlow 1.3 and 1.4 share this capability */
+	OFPUTIL_C_OPEN_STATE	 = 1 << 9,  /* OpenState table implementation. */
 };
 
 enum ofputil_action_bitmap {

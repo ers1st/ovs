@@ -2937,10 +2937,6 @@ ofp_to_string__(const struct ofp_header *oh, enum ofpraw raw,
     case OFPTYPE_ROLE_REPLY:
         ofp_print_role_message(string, oh);
         break;
-    case OFPTYPE_ROLE_STATUS:
-        ofp_print_role_status_message(string, oh);
-        break;
-
     case OFPTYPE_METER_STATS_REQUEST:
     case OFPTYPE_METER_CONFIG_STATS_REQUEST:
         ofp_print_stats_request(string, oh);
@@ -3076,8 +3072,6 @@ ofp_to_string__(const struct ofp_header *oh, enum ofpraw raw,
         ofp_print_bundle_add(string, msg, verbosity);
         break;
 
-    case OFPTYPE_FLAG_MOD:
-    	/*TODO davide*/
     case OFPTYPE_STATE_MOD:
     	ofp_print_state_mod(string, msg);
     	break;

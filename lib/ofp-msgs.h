@@ -532,8 +532,6 @@ enum ofptype {
     OFPTYPE_METER_MOD,            /* OFPRAW_OFPT13_METER_MOD. */
 
     /* Controller role change event messages. */
-    OFPTYPE_ROLE_STATUS,          /* OFPRAW_OFPT14_ROLE_STATUS. */
-
     OFPTYPE_BUNDLE_CONTROL,       /* OFPRAW_OFPT14_BUNDLE_CONTROL. */
 
     OFPTYPE_BUNDLE_ADD_MESSAGE,   /* OFPRAW_OFPT14_BUNDLE_ADD_MESSAGE. */

@@ -606,6 +606,10 @@ static enum ofperr ofpact_from_openflow11(const union ofp_action *,
                                           enum ofp_version,
                                           struct ofpbuf *out);
 
+static enum ofperr ofpact_from_openflow13(const union ofp_action *,
+										  enum ofp_version,
+										  struct ofpbuf *out);
+
 static inline union ofp_action *
 action_next(const union ofp_action *a)
 {

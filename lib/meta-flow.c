@@ -1034,8 +1034,8 @@ mf_is_all_wild(const struct mf_field *mf, const struct flow_wildcards *wc)
         return !wc->masks.tcp_flags;
 
     case MFF_STATE:
-    case MFF_FLAGS:
-    	/*TODO federico*/
+    	/*TODO Davide*/
+    	return !wc->masks.state;
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -1217,6 +1217,7 @@ mf_is_value_valid(const struct mf_field *mf, const union mf_value *value)
     case MFF_ND_TARGET:
     case MFF_ND_SLL:
     case MFF_ND_TLL:
+    case MFF_STATE:
         return true;
 
     case MFF_IN_PORT_OXM: {
@@ -1259,9 +1260,6 @@ mf_is_value_valid(const struct mf_field *mf, const union mf_value *value)
     case MFF_MPLS_BOS:
         return !(value->u8 & ~(MPLS_BOS_MASK >> MPLS_BOS_SHIFT));
 
-    case MFF_STATE:
-    case MFF_FLAGS:
-    	/*TODO federico*/
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -1460,7 +1458,6 @@ mf_get_value(const struct mf_field *mf, const struct flow *flow,
         break;
 
     case MFF_STATE:
-    case MFF_FLAGS:
     	/*TODO federico*/
     case MFF_N_IDS:
     default:
@@ -1891,8 +1888,8 @@ mf_set_flow_value(const struct mf_field *mf,
         break;
 
     case MFF_STATE:
-    case MFF_FLAGS:
-    	/*TODO federico*/
+    	flow->state = value->be32;
+    	break;
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
@@ -2110,7 +2107,6 @@ mf_set_wild(const struct mf_field *mf, struct match *match)
         break;
 
     case MFF_STATE:
-    case MFF_FLAGS:
     	/*TODO federico*/
     case MFF_N_IDS:
     default:
@@ -2285,7 +2281,6 @@ mf_set(const struct mf_field *mf,
         break;
 
     case MFF_STATE:
-    case MFF_FLAGS:
     	/*TODO federico*/
     case MFF_N_IDS:
     default:
