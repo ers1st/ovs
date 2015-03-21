@@ -480,56 +480,49 @@ struct ofp13_packet_in {
 OFP_ASSERT(sizeof(struct ofp13_packet_in) == 16);
 
 
-/*Openstate structures. */
+/*OpenState implementation. */
 
-/* State mod message types. */
+#define OFPSC_MAX_FIELD_COUNT 6
+#define OFPSC_MAX_KEY_LEN 48
+
+/* OpenFlow 1.3 specific capabilities supported by the datapath (struct
+ * ofp_switch_features, member capabilities). */
+enum ofp13_capabilities {
+    OFPC13_OPEN_STATE    = 1 << 9,  /* OpenState support. */
+};
+
+struct ofp_state_entry {
+    ovs_be32 key_len;
+    ovs_be32 state;
+    uint8_t key[OFPSC_MAX_KEY_LEN];
+};
+OFP_ASSERT(sizeof(struct ofp_state_entry) == 56);
+
+struct ofp_extraction {
+    ovs_be32 field_count;
+    ovs_be32 fields[OFPSC_MAX_FIELD_COUNT];
+};
+OFP_ASSERT(sizeof(struct ofp_extraction) == 28);
+
 enum ofp13_state_mod_command {
 	OFPSC_SET_L_EXTRACTOR = 0,
 	OFPSC_SET_U_EXTRACTOR,
 	OFPSC_ADD_FLOW_STATE,
-	OFPSC_DEL_FLOW_STATE,
+	OFPSC_DEL_FLOW_STATE
 };
 
-struct ofp13_state_entry {
-	ovs_be32 key_len;
-	ovs_be32 state;
-	uint8_t key[OFPSC_MAX_KEY_LEN];
-};
-OFP_ASSERT(sizeof(struct ofp13_state_entry) == 56);
-
-struct ofp13_extraction {
-	ovs_be32 field_count;
-	ovs_be32 fields[OFPSC_MAX_FIELD_COUNT];
-};
-OFP_ASSERT(sizeof(struct ofp13_extraction) == 28);
-
-/* Message structure for OFPT_STATE_MOD. */
 struct ofp13_state_mod {
 	ovs_be64 cookie;
 	ovs_be64 cookie_mask;
 	uint8_t table_id;
-	uint8_t command;
+	uint8_t command; /* enum ofp13_state_mod_command. */
 	uint8_t pad[6];
+	uint8_t payload[];
 	/* Followed by one between:
 	 * struct ofp13_extraction and
 	 * struct ofp13_state_entry. */
 };
 OFP_ASSERT(sizeof(struct ofp13_state_mod) == 24);
-
-/* Flag mod message types. */
-enum ofp13_flag_mod_command {
-	OFPSC_MODIFY_FLAGS = 0,
-	OFPSC_RESET_FLAGS
-};
-
-/* Message structure for OFPT_FLAG_MOD. */
-struct ofp13_flag_mod {
-	ovs_be32 flag;
-	ovs_be32 flag_mask;
-	uint8_t command;
-	uint8_t pad[3];
-};
-OFP_ASSERT(sizeof(struct ofp13_flag_mod) == 12);
 
 /* Action structure for OFPAT_SET_STATE. */
 struct ofp13_action_set_state {

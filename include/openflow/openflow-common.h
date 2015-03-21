@@ -131,10 +131,6 @@ enum ofp_version {
 /* By default, choose a priority in the middle. */
 #define OFP_DEFAULT_PRIORITY 0x8000
 
-/* Used for state mod messages. */
-#define OFPSC_MAX_FIELD_COUNT 6
-#define OFPSC_MAX_KEY_LEN 48
-
 /* Header on all OpenFlow packets. */
 struct ofp_header {
     uint8_t version;    /* An OpenFlow version number, e.g. OFP10_VERSION. */
@@ -494,8 +490,8 @@ enum ofp_table_config {
     OFPTC14_EVICTION              = 1 << 2, /* Allow table to evict flows. */
     OFPTC14_VACANCY_EVENTS        = 1 << 3, /* Enable vacancy events. */
 
-    /* OpenState. */
-    OFPTC13_TABLE_STATEFUL        = 1 << 4, /* Enable state table processing. */
+	/* OpenFlow 1.3+. */
+	OFPTC13_TABLE_STATEFUL		  = 1 << 4, /* State table implementation. */
 };
 
 
