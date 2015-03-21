@@ -236,20 +236,14 @@ enum ofpraw {
     /* OFPT 1.3+ (29): struct ofp13_meter_mod, uint8_t[8][]. */
     OFPRAW_OFPT13_METER_MOD,
 
-    /* OFPT 1.4+ (30): struct ofp14_role_status, uint8_t[8][]. */
-    OFPRAW_OFPT14_ROLE_STATUS,
+	/* OFPT 1.3+ (30): struct ofp13_state_mod, uint8_t[]. */
+	OFPRAW_OFPT13_STATE_MOD,
 
     /* OFPT 1.4+ (33): struct ofp14_bundle_ctrl_msg, uint8_t[8][]. */
     OFPRAW_OFPT14_BUNDLE_CONTROL,
 
     /* OFPT 1.4+ (34): struct ofp14_bundle_ctrl_msg, uint8_t[]. */
     OFPRAW_OFPT14_BUNDLE_ADD_MESSAGE,
-
-	/* OFPT 1.3+ (35): struct ofp13_state_mod, uint8_t[]. */
-	OFPRAW_OFPT13_STATE_MOD,
-
-	/* OFPT 1.3+ (36): struct ofp13_flag_mod. */
-	OFPRAW_OFPT13_FLAG_MOD,
 
 /* Standard statistics. */
 
@@ -509,7 +503,6 @@ enum ofptype {
     OFPTYPE_TABLE_MOD,           /* OFPRAW_OFPT11_TABLE_MOD.
                                   * OFPRAW_OFPT14_TABLE_MOD. */
 	OFPTYPE_STATE_MOD,			 /* OFPRAW_OFPT13_STATE_MOD. */
-	OFPTYPE_FLAG_MOD,			 /* OFPRAW_OFPT13_FLAG_MOD. */
 
     /* Barrier messages. */
     OFPTYPE_BARRIER_REQUEST,     /* OFPRAW_OFPT10_BARRIER_REQUEST.

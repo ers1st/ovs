@@ -655,8 +655,9 @@ ofpacts_from_openflow(const union ofp_action *in, size_t n_in,
     enum ofperr (*ofpact_from_openflow)(const union ofp_action *a,
                                         enum ofp_version,
                                         struct ofpbuf *out) =
-        (version == OFP10_VERSION) ?
-        ofpact_from_openflow10 : ofpact_from_openflow11;
+                                        		(version == OFP10_VERSION) ?
+                                        				ofpact_from_openflow10 : ((version == OFP11_VERSION) ?
+                                        						ofpact_from_openflow11 : ofpact_from_openflow13);
 
     ACTION_FOR_EACH (a, left, in, n_in) {
         enum ofperr error = ofpact_from_openflow(a, version, out);
@@ -1307,10 +1308,10 @@ ofpact_from_openflow11(const union ofp_action *a, enum ofp_version version,
     return error;
 }
 
-/*TODO_warning: rimetti static */
-/*static*/ enum ofperr
-ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
+static enum ofperr
+ofpact_from_openflow13(const union ofp_action *a, enum ofp_version version,
         struct ofpbuf *out) {
+	/*TODO davide*/
     enum ofputil_action_code code;
     enum ofperr error;
 
@@ -1320,7 +1321,21 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
     }
 
     if (version >= OFP12_VERSION) {
-    	/*TODO davide*/
+    	switch ((int)code) {
+    		case OFPUTIL_OFPAT11_SET_VLAN_VID:
+    		case OFPUTIL_OFPAT11_SET_VLAN_PCP:
+    		case OFPUTIL_OFPAT11_SET_DL_SRC:
+    		case OFPUTIL_OFPAT11_SET_DL_DST:
+    		case OFPUTIL_OFPAT11_SET_NW_SRC:
+    		case OFPUTIL_OFPAT11_SET_NW_DST:
+    		case OFPUTIL_OFPAT11_SET_NW_TOS:
+    		case OFPUTIL_OFPAT11_SET_NW_ECN:
+    		case OFPUTIL_OFPAT11_SET_TP_SRC:
+    		case OFPUTIL_OFPAT11_SET_TP_DST:
+    			VLOG_WARN_RL(&rl, "Deprecated action %s received over %s",
+    					ofputil_action_name_from_code(code),
+						ofputil_version_to_string(version));
+    	}
     }
 
     switch (code) {
@@ -1331,7 +1346,6 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
 #include "ofp-util.def"
         OVS_NOT_REACHED();
 
-    /* TODO_warning */
     case OFPUTIL_NXAST_RESUBMIT:
     case OFPUTIL_NXAST_SET_TUNNEL:
     case OFPUTIL_NXAST_SET_QUEUE:
@@ -1361,8 +1375,8 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
     case OFPUTIL_NXAST_PUSH_MPLS:
     case OFPUTIL_NXAST_POP_MPLS:
     case OFPUTIL_NXAST_SAMPLE:
-    /* Fine TODO_warning*/
     case OFPUTIL_OFPAT13_OUTPUT:
+    	return output_from_openflow11(&a->ofp11_output, out);
     case OFPUTIL_OFPAT13_COPY_TTL_OUT:
     case OFPUTIL_OFPAT13_COPY_TTL_IN:
     case OFPUTIL_OFPAT13_SET_MPLS_TTL:
@@ -1385,7 +1399,7 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
     	return 0;
     }
 
-    /* TODO_warning*/ return -1;
+    return -1;
 }
 
 /* True if an action sets the value of a field
