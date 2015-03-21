@@ -382,6 +382,7 @@ miniflow_extract(struct ofpbuf *packet, const struct pkt_metadata *md,
         miniflow_push_uint32_check(mf, recirc_id, md->recirc_id);
         miniflow_push_uint32(mf, in_port, odp_to_u32(md->in_port.odp_port));
     }
+
     /* Stateful processing is requested in any case; set default state. */
     /* TODO: deve essere settato a default? */
     miniflow_push_uint32(mf, state, STATE_DEFAULT);
