@@ -140,12 +140,6 @@ enum ofp13_flow_mod_flags {
     OFPFF13_NO_BYT_COUNTS = 1 << 4  /* Don't keep track of byte count. */
 };
 
-/* OpenFlow 1.3 specific capabilities
- * (struct ofp_switch features, member capabilities). */
-enum ofp13_capabilities {
-    OFPC13_OPENSTATE      = 1 << 9 /* OpenState stateful datapath. */
-};
-
 /* Common header for all meter bands */
 struct ofp13_meter_band_header {
     ovs_be16 type;       /* One of OFPMBT_*. */

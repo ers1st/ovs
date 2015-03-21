@@ -4003,6 +4003,7 @@ BUILD_ASSERT_DECL((int) OFPUTIL_C_PORT_STATS == OFPC_PORT_STATS);
 BUILD_ASSERT_DECL((int) OFPUTIL_C_IP_REASM == OFPC_IP_REASM);
 BUILD_ASSERT_DECL((int) OFPUTIL_C_QUEUE_STATS == OFPC_QUEUE_STATS);
 BUILD_ASSERT_DECL((int) OFPUTIL_C_ARP_MATCH_IP == OFPC_ARP_MATCH_IP);
+BUILD_ASSERT_DECL((int) OFPUTIL_C_OPEN_STATE == OFPC13_OPEN_STATE);
 
 struct ofputil_action_bit_translation {
     enum ofputil_action_bitmap ofputil_bit;
@@ -4043,20 +4044,21 @@ decode_action_bits(ovs_be32 of_actions,
 static uint32_t
 ofputil_capabilities_mask(enum ofp_version ofp_version)
 {
-    /* Handle capabilities whose bit is unique for all Open Flow versions */
-    switch (ofp_version) {
-    case OFP10_VERSION:
-    case OFP11_VERSION:
-        return OFPC_COMMON | OFPC_ARP_MATCH_IP;
-    case OFP12_VERSION:
-    case OFP13_VERSION:
-    case OFP14_VERSION:
-    case OFP15_VERSION:
-        return OFPC_COMMON | OFPC12_PORT_BLOCKED;
-    default:
-        /* Caller needs to check osf->header.version itself */
-        return 0;
-    }
+	/* Handle capabilities whose bit is unique for all Open Flow versions */
+	switch (ofp_version) {
+	case OFP10_VERSION:
+	case OFP11_VERSION:
+		return OFPC_COMMON | OFPC_ARP_MATCH_IP;
+	case OFP12_VERSION:
+		return OFPC_COMMON | OFPC12_PORT_BLOCKED;
+	case OFP13_VERSION:
+	case OFP14_VERSION:
+	case OFP15_VERSION:
+		return OFPC_COMMON | OFPC13_OPEN_STATE;
+	default:
+		/* Caller needs to check osf->header.version itself */
+		return 0;
+	}
 }
 
 /* Decodes an OpenFlow 1.0 or 1.1 "switch_features" structure 'osf' into an

@@ -248,18 +248,6 @@ static void ofport_set_usage(struct ofproto *, ofp_port_t ofp_port,
                              long long int last_used);
 static void ofport_remove_usage(struct ofproto *, ofp_port_t ofp_port);
 
-
-/* The source of a state_mod request, in the code that processes state_mods.
- *
- * A flow table state modification request can be generated externally, via OpenFlow,
- * or internally through a function call.  This structure indicates the source
- * of an OpenFlow-generated state_mod.  For an internal state_mod, it isn't
- * meaningful and thus supplied as NULL. */
-struct state_mod_requester {
-	struct ofconn *ofconn;	/* Connection on which state_mod arrived. */
-	ovs_be32 xid;			/* OpenFlow xid of state_mod request. */
-};
-
 /* Ofport usage.
  *
  * Keeps track of the currently used and recently used ofport values and is
@@ -314,23 +302,6 @@ static void meter_delete(struct ofproto *, uint32_t first, uint32_t last);
 
 /* unixctl. */
 static void ofproto_unixctl_init(void);
-
-/* Openstate methods. */
-static enum ofperr get_state(struct ofputil_state_mod *, uint32_t *);
-static enum ofperr ofproto_check_state(uint32_t *, struct ofproto *);
-static enum ofperr set_lookup_extractor(struct ofproto *, struct ofputil_state_mod *,
-										const struct state_mod_requester *);
-static enum ofperr set_update_extractor(struct ofproto *, struct ofputil_state_mod *,
-										const struct state_mod_requester *);
-static enum ofperr add_flow_state(struct ofproto *, struct ofputil_state_mod *,
-									const struct state_mod_requester *);
-static enum ofperr del_flow_state(struct ofproto *, struct ofputil_state_mod *,
-									const struct state_mod_requester *);
-static enum ofperr handle_state_mod__(struct ofproto *, struct ofputil_state_mod *,
-										const struct state_mod_requester *)
-OVS_EXCLUDED(ofproto_mutex);
-static enum ofperr handle_state_mod(struct ofconn *, const struct ofp_header *);
-static enum ofperr handle_flag_mod(struct ofconn *, const struct ofp_header *);
 
 /* All registered ofproto classes, in probe order. */
 static const struct ofproto_class **ofproto_classes;
@@ -2821,6 +2792,9 @@ handle_features_request(struct ofconn *ofconn, const struct ofp_header *oh)
                              OFPUTIL_C_PORT_STATS | OFPUTIL_C_QUEUE_STATS);
     if (arp_match_ip) {
         features.capabilities |= OFPUTIL_C_ARP_MATCH_IP;
+    }
+    if (oh->version >= OFP13_VERSION) {
+        	features.capabilities |= OFPUTIL_C_OPEN_STATE;
     }
     /* FIXME: Fill in proper features.auxiliary_id for auxiliary connections */
     features.auxiliary_id = 0;
@@ -5934,6 +5908,198 @@ handle_bundle_add(struct ofconn *ofconn, const struct ofp_header *oh)
     return ofp_bundle_add_message(ofconn, &badd);
 }
 
+static enum ofperr get_state(struct ofputil_state_mod *sm,
+		ovs_be32 *state) {
+	/*TODO davide: vedi state_table_lookup() in state_table.c*/
+}
+
+static enum ofperr ofproto_check_state(ovs_be32 *state, struct ofproto *ofproto) {
+	/*TODO davide: verifica la consistenza della variabile state
+	 * (quando la variabile state è consistente? Basta guardare il tipo o serve
+	 * conoscere anche la funzione di transizione dell'automa?) */
+}
+
+static enum ofperr set_lookup_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm) {
+	/*TODO davide*/
+	FILE *f = fopen("/home/davide/Scrivania/log", "a");
+	fprintf(f, "Sono in set_lookup_extractor!\n");
+	fclose(f);
+	/*struct dpif *dpif;
+	struct ofp13_extraction *ofp_ke;
+	struct key_extractor *ke;
+
+	//Getting the new key extractor from the message
+	ofp_ke = &(osm->extraction);
+	ke->field_count = ofp_ke->field_count;
+	ke->fields = ofp_ke->fields;
+
+	//Setting key extractor
+	int error = dpif_open(ofproto->name, ofproto->type, dpif);
+	if (error) {
+		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
+					ovs_strerror(error));
+	}
+	//TODO usa le funzioni in dpif.c!
+	else dpif->dpif_class->set_extractor(dpif, ke, 0);*/
+
+}
+
+static enum ofperr set_update_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm) {
+	/*TODO davide: guarda state_table_set_extractor() col booleano true*/
+	FILE *f = fopen("/home/davide/Scrivania/log", "a");
+	fprintf(f, "Sono in set_update_extractor!\n");
+	fclose(f);
+	/*struct dpif *dpif;
+	struct ofp13_extraction *ofp_ke;
+	struct key_extractor *ke;
+
+	//Getting the new key extractor from the message
+	ofp_ke = osm->extraction;
+	ke->field_count = ofp_ke->field_count;
+	ke->fields = ofp_ke->fields;
+
+	//Setting key extractor
+	int error = dpif_open(ofproto->name, ofproto->type, dpif);
+	if (error) {
+		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
+					ovs_strerror(error));
+	}
+	else dpif->dpif_class->set_extractor(dpif, ke, 1);*/
+}
+
+static enum ofperr add_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm) {
+	/*TODO davide: vedi state_table_set_state() e state_table_write_state() in
+	 * state_table.c*/
+	FILE *f = fopen("/home/davide/Scrivania/log", "a");
+	fprintf(f, "Sono in add_flow_state!\n");
+	fclose(f);
+	/*struct state_table *table;
+	struct dpif *dpif;
+	struct miniflow *flow;
+	ovs_be32 state;
+	ovs_be32 key_len;
+	uint8_t *key;
+
+	//Opening datapath
+	int error = dpif_open(ofproto->name, ofproto->type, dpif);
+	if (error) {
+		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
+				ovs_strerror(error));
+	}
+	else{
+		//Getting the new state from the message
+		state = osm->entry->state;
+		key_len = osm->entry->key_len;
+		key = osm->entry->key;
+
+		//Getting state table
+		table = ofproto_get_state_table(dpif);
+
+		//Getting flow key
+
+
+		//Setting new state
+		//TODO guarda in dpif.c dpif_flow_put(), dpif_flow_set(), dpif_flow_get()
+		dpif->dpif_class->set_state(dpif, flow, state, key,
+				key_len);
+
+		state_table_set_state(table, flow, state, key, key_len);
+	}*/
+}
+
+static enum ofperr del_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm) {
+	/*TODO davide: vedi state_table_del_state() in state_table.c*/
+	FILE *f = fopen("/home/davide/Scrivania/log", "a");
+	fprintf(f, "Sono in del_flow_state!\n");
+	fclose(f);
+}
+
+static enum ofperr handle_state_mod__(struct ofproto *ofproto,
+		struct ofputil_state_mod *sm)
+OVS_EXCLUDED(ofproto_mutex)
+{
+//	//TODO Davide
+	enum ofperr error;
+
+	ovs_mutex_lock(&ofproto_mutex);
+	switch(sm->command) {
+	case OFPSC_SET_L_EXTRACTOR:
+		error = set_lookup_extractor(ofproto, sm);
+		break;
+	case OFPSC_SET_U_EXTRACTOR:
+		error = set_update_extractor(ofproto, sm);
+		break;
+	case OFPSC_ADD_FLOW_STATE:
+		error = add_flow_state(ofproto, sm);
+		break;
+	case OFPSC_DEL_FLOW_STATE:
+		error = del_flow_state(ofproto, sm);
+		break;
+	default:
+		if (sm->command > 3) {
+			VLOG_WARN_RL(&rl, "%s: invalid state_mod command",
+					ofproto->name);
+		}
+		error = OFPERR_OFPFMFC_BAD_COMMAND;
+		break;
+	}
+
+	ofmonitor_flush(ofproto->connmgr);
+	ovs_mutex_unlock(&ofproto_mutex);
+
+//	/*TODO esegue le azioni accumulate... necessario?*/
+//	run_rule_executes(ofproto);
+//	return error;
+}
+
+static enum ofperr handle_state_mod(struct ofconn *ofconn, const struct ofp_header *oh)
+{
+	//TODO Davide
+
+	struct ofproto *ofproto = ofconn_get_ofproto(ofconn);
+	struct ofputil_state_mod sm;
+	ovs_be32 state;
+	enum ofperr error;
+
+	//Rifiuta slave controller
+//	error = reject_slave_controller(ofconn);
+//	if (error)
+//		return error;
+
+	//Decode state_mod message
+//	if (!error) {
+		error = ofputil_decode_state_mod(oh, &sm);
+		/* ofconn_get_protocol(ofconn),
+				&state,
+				u16_to_ofp(ofproto->max_ports),
+				ofproto->n_tables);*/
+
+//	}
+
+//	//Pull state_mod state
+//	error = get_state(&sm, &state); /*TODO*/
+//
+//	//Validate state
+//	if (!error) {
+//		error = ofproto_check_state(&state, ofproto); /*TODO*/
+//	}
+//
+//	//Initialize struct state_mod_requester
+	if (!error) {
+		error = handle_state_mod__(ofproto, &sm);
+	}
+//	if (error)
+//		return error;
+//
+//	/* Report that a state_mod istruction with the specified command has been
+//	 * succesfully executed by ofconn, so that connmgr can log it
+//	 */
+//	ofconn_report_state_mod(ofconn, sm.command); /*TODO*/
+    if (!error)
+    	return 0;
+    else return error;
+}
+
 static enum ofperr
 handle_openflow__(struct ofconn *ofconn, const struct ofpbuf *msg)
     OVS_EXCLUDED(ofproto_mutex)
@@ -6072,12 +6238,8 @@ handle_openflow__(struct ofconn *ofconn, const struct ofpbuf *msg)
     case OFPTYPE_BUNDLE_ADD_MESSAGE:
         return handle_bundle_add(ofconn, oh);
 
-    /* OpenState requests */
     case OFPTYPE_STATE_MOD:
     	return handle_state_mod(ofconn, oh);
-
-    case OFPTYPE_FLAG_MOD:
-    	return handle_flag_mod(ofconn, oh);
 
     case OFPTYPE_HELLO:
     case OFPTYPE_ERROR:
@@ -6129,7 +6291,7 @@ handle_openflow(struct ofconn *ofconn, const struct ofpbuf *ofp_msg)
     COVERAGE_INC(ofproto_recv_openflow);
     return error != OFPROTO_POSTPONE;
 }
-
+
 /* Asynchronous operations. */
 
 /* Creates and returns a new ofopgroup that is not associated with any
@@ -6490,7 +6652,7 @@ ofoperation_complete(struct ofoperation *op, enum ofperr error)
         ovs_mutex_unlock(&ofproto_mutex);
     }
 }
-
+
 static uint64_t
 pick_datapath_id(const struct ofproto *ofproto)
 {
@@ -6519,7 +6681,7 @@ pick_fallback_dpid(void)
     eth_addr_nicira_random(ea);
     return eth_addr_to_uint64(ea);
 }
-
+
 /* Table overflow policy. */
 
 /* Chooses and updates 'rulep' with a rule to evict from 'table'.  Sets 'rulep'
@@ -6951,7 +7113,7 @@ oftable_insert_rule(struct rule *rule)
     fat_rwlock_unlock(&table->cls.rwlock);
     eviction_group_add_rule(rule);
 }
-
+
 /* unixctl commands. */
 
 struct ofproto *
@@ -6995,7 +7157,7 @@ ofproto_unixctl_init(void)
     unixctl_command_register("ofproto/list", "", 0, 0,
                              ofproto_unixctl_list, NULL);
 }
-
+
 /* Linux VLAN device support (e.g. "eth0.10" for VLAN 10.)
  *
  * This is deprecated.  It is only for compatibility with broken device drivers
@@ -7084,185 +7246,4 @@ ofproto_port_set_realdev(struct ofproto *ofproto, ofp_port_t vlandev_ofp_port,
                   netdev_get_name(ofport->netdev), ovs_strerror(error));
     }
     return error;
-}
-
-/**
- * Federico: gestisci il lavoro da fare dentro ai case (che è la modifica dello
- * stato vera e propria).
- * Davide: implementa ofputil_decode_state_mod() e vedi cosa bisogna fare alla
- * fine della funzione, se bisogna rispondere o mettere il messaggio da qualche
- * parte
- */
-static enum ofperr
-handle_state_mod(struct ofconn *ofconn, const struct ofp_header *oh)
-{
-
-	/*TODO davide*/
-	struct ofproto *ofproto = ofconn_get_ofproto(ofconn);
-	struct ofputil_state_mod sm;
-	uint32_t state;
-	enum ofperr error;
-
-	//Rifiuta slave controller
-	error = reject_slave_controller(ofconn);
-	if (error)
-		return error;
-
-	//Decode state_mod message
-	if (!error) {
-		error = ofputil_decode_state_mod(oh, &sm);/* ofconn_get_protocol(ofconn),
-				&state,
-				u16_to_ofp(ofproto->max_ports),
-				ofproto->n_tables);*/
-
-	}
-
-	//Pull state_mod state
-	error = get_state(&sm, &state); /*TODO*/
-
-	//Validate state
-	if (!error) {
-		error = ofproto_check_state(&state, ofproto); /*TODO*/
-	}
-
-	//Initialize struct state_mod_requester
-	if (!error) {
-		struct state_mod_requester req; /*TODO*/
-
-		req.ofconn = ofconn;
-		req.xid = oh->xid;
-		error = handle_state_mod__(ofproto, &sm, &req);
-	}
-	if (error)
-		return error;
-
-	/* Report that a state_mod istruction with the specified command has been
-	 * succesfully executed by ofconn, so that connmgr can log it
-	 */
-	ofconn_report_state_mod(ofconn, sm.command); /*TODO*/
-    /*TODO_warning*/ return -1;
-}
-
-static enum ofperr handle_state_mod__(struct ofproto *ofproto,
-		struct ofputil_state_mod *sm,
-		const struct state_mod_requester *req)
-OVS_EXCLUDED(ofproto_mutex)
-{
-
-	/*TODO davide*/
-	enum ofperr error;
-
-	ovs_mutex_lock(&ofproto_mutex);
-	switch(sm->command) {
-	case OFPSC_SET_L_EXTRACTOR:
-		error = set_lookup_extractor(ofproto, sm, req);
-		break;
-	case OFPSC_SET_U_EXTRACTOR:
-		error = set_update_extractor(ofproto, sm, req);
-		break;
-	case OFPSC_ADD_FLOW_STATE:
-		error = add_flow_state(ofproto, sm, req);
-		break;
-	case OFPSC_DEL_FLOW_STATE:
-		error = del_flow_state(ofproto, sm, req);
-		break;
-	}
-	/*TODO implementare controllo validità comando
-	 * tramite default: ... (vedi handle_flow_mod__())*/
-
-	ofmonitor_flush(ofproto->connmgr);
-	ovs_mutex_unlock(&ofproto_mutex);
-
-	run_rule_executes(ofproto);
-	return error;
-}
-
-static enum ofperr get_state(struct ofputil_state_mod *sm,
-		uint32_t *state) {
-	/*TODO davide*/
-    /*TODO_warning*/
-    sm = sm;
-    state = state;
-    return -1;
-    /* Fine TODO_warning */
-}
-
-static enum ofperr ofproto_check_state(uint32_t *state, struct ofproto *ofproto) {
-	/*TODO davide*/
-    /*TODO_warning*/
-    ofproto = ofproto;
-    state = state;
-    return -1;
-    /* Fine TODO_warning */
-}
-
-static enum ofperr set_lookup_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm,
-		const struct state_mod_requester *req) {
-	/*TODO davide*/
-    /*TODO_warning*/
-    ofproto = ofproto;
-    osm = osm;
-    req = req;
-    return -1;
-    /* Fine TODO_warning */
-}
-
-static enum ofperr set_update_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm,
-		const struct state_mod_requester *req) {
-	/*TODO davide*/
-    /*TODO_warning*/
-    ofproto = ofproto;
-    osm = osm;
-    req = req;
-    return -1;
-    /* Fine TODO_warning */
-}
-
-static enum ofperr add_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm,
-		const struct state_mod_requester *req) {
-	/*TODO davide*/
-    /*TODO_warning*/
-    ofproto = ofproto;
-    osm = osm;
-    req = req;
-    return -1;
-    /* Fine TODO_warning */
-}
-
-static enum ofperr del_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm,
-		const struct state_mod_requester *req) {
-	/*TODO davide*/
-    /*TODO_warning*/
-    ofproto = ofproto;
-    osm = osm;
-    req = req;
-    return -1;
-    /* Fine TODO_warning */
-}
-
-/**
- * Stessa cosa di handle_state_mod()
- */
-static enum ofperr
-handle_flag_mod(struct ofconn *ofconn, const struct ofp_header *oh) {
-
-	/*TODO davide*/
-	enum ofperr error;
-	struct ofputil_flag_mod fmod;
-    /*TODO_warning*/
-    ofconn = ofconn;
-    /* Fine TODO_warning */
-	error = ofputil_decode_flag_mod(oh, &fmod);
-	if (error) {
-		return error;
-	}
-
-	switch(fmod.command) {
-	case OFPSC_MODIFY_FLAGS:
-		break;
-	case OFPSC_RESET_FLAGS:
-		break;
-	}
-
-	return error;
 }
