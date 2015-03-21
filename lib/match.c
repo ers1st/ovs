@@ -764,6 +764,13 @@ match_set_nd_target(struct match *match, const struct in6_addr *target)
 }
 
 void
+match_set_state(struct match *match, const ovs_be32 state)
+{
+	match->flow.state = state;
+	match->wc.masks.state = OVS_BE32_MAX;
+}
+
+void
 match_set_nd_target_masked(struct match *match,
                            const struct in6_addr *target,
                            const struct in6_addr *mask)

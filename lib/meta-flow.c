@@ -1665,8 +1665,9 @@ mf_set_value(const struct mf_field *mf,
         break;
 
     case MFF_STATE:
-    case MFF_FLAGS:
-    	/*TODO federico*/
+    	/*TODO Davide*/
+    	match_set_state(match, value->be32);
+    	break;
     case MFF_N_IDS:
     default:
         OVS_NOT_REACHED();
