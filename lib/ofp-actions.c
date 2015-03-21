@@ -1378,12 +1378,11 @@ ofpacts_from_openflow13(const union ofp_action *a, enum ofp_version version,
     case OFPUTIL_OFPAT13_SET_FIELD:
     case OFPUTIL_OFPAT13_PUSH_PBB:
     case OFPUTIL_OFPAT13_POP_PBB:
-    	/*TODO davide*/
     	break;
     case OFPUTIL_OFPAT13_SET_STATE:
     	ofpact_put_SET_STATE(out)->state =
     			ntohl(a->set_state.state);
-    	break;
+    	return 0;
     }
 
     /* TODO_warning*/ return -1;
@@ -2247,8 +2246,8 @@ ofpact_check__(enum ofputil_protocol *usable_protocols, struct ofpact *a,
     case OFPACT_GROUP:
         return 0;
 
-    /*TODO: verifica di consistenza dello state? */
     case OFPACT_SET_STATE:
+    	/*TODO Davide: per ora ritorno 0, poi andrà fatto un controllo sullo state*/
     	return 0;
 
     default:
