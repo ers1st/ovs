@@ -5804,8 +5804,9 @@ ofproto_table_get_config(const struct ofproto *ofproto, uint8_t table_id)
 static enum ofperr
 table_mod(struct ofproto *ofproto, const struct ofputil_table_mod *tm)
 {
+
     /* Only accept currently supported configurations */
-    if (tm->config & ~OFPTC11_TABLE_MISS_MASK) {
+    if (tm->config & ~OFPTC11_TABLE_MISS_MASK & ~OFPTC13_TABLE_STATEFUL) {
         return OFPERR_OFPTMFC_BAD_CONFIG;
     }
 
