@@ -350,6 +350,7 @@ struct ofputil_flow_stats {
     uint64_t byte_count;        /* Byte count, UINT64_MAX if unknown. */
     const struct ofpact *ofpacts;
     size_t ofpacts_len;
+    uint32_t state;				/* TODO Per stampare flows da controllore. */
     enum ofputil_flow_mod_flags flags;
 };
 
@@ -1173,44 +1174,18 @@ struct ofpbuf *ofputil_encode_bundle_add(enum ofp_version ofp_version,
 enum ofperr ofputil_decode_bundle_add(const struct ofp_header *,
                                       struct ofputil_bundle_add_msg *);
 
-/* Openstate structures and methods. */
-struct ofputil_state_entry {
-	uint32_t key_len;
-	uint32_t state;
-	uint8_t key[OFPSC_MAX_KEY_LEN];
-};
-
-struct ofputil_extraction {
-	uint32_t field_count;
-	uint32_t fields[OFPSC_MAX_FIELD_COUNT];
-};
-
+/* OpenState implementation. */
 struct ofputil_state_mod {
-	uint64_t cookie;
-	uint64_t cookie_mask;
+	ovs_be64 cookie;
+	ovs_be64 cookie_mask;
 	uint8_t table_id;
-	uint8_t command; /* ofp_state_mod_command */
-	struct ofp13_state_entry entry; /* PROVVISORIO! */
-	struct ofp13_extraction extraction; /* PROVVISORIO! */
-};
-
-struct ofputil_flag_mod {
-	uint32_t flag;
-	uint32_t flag_mask;
-	uint8_t command;
-	uint8_t pad[3];
+	uint8_t command; /* enum ofp_state_mod_command. */
+	/* One between struct ofp_extraction e struct state_entry. */
+	struct ofp_extraction ext;
+	struct ofp_state_entry se;
 };
 
 enum ofperr ofputil_decode_state_mod(const struct ofp_header *,
-		struct ofputil_state_mod *);
-
-struct ofpbuf *ofputil_encode_state_mod(const struct ofp_header *,
-		struct ofputil_state_mod *);
-
-enum ofperr ofputil_decode_flag_mod(const struct ofp_header *,
-		struct ofputil_flag_mod *);
-
-struct ofpbuf *ofputil_encode_flag_mod(const struct ofp_header *,
-		struct ofputil_flag_mod *);
+										struct ofputil_state_mod *);
 
 #endif /* ofp-util.h */

@@ -7571,105 +7571,47 @@ ofputil_encode_bundle_add(enum ofp_version ofp_version,
     return request;
 }
 
-/* Decodes the OpenFlow (openstate) "state mod" message in '*oh'
- * into an abstract form in '*sm*. Returns 0 if successful,
- * otherwise an OFPERR_* value. */
-enum ofperr
-ofputil_decode_state_mod(const struct ofp_header *oh,
-                         struct ofputil_state_mod *sm)
-{
-	enum ofpraw raw;
+/* OpenState implementation. */
+enum ofperr ofputil_decode_state_mod(const struct ofp_header *oh,
+										struct ofputil_state_mod *osm) {
+	//TODO Davide
+    struct ofp13_state_mod *sm;
     struct ofpbuf b;
+    int i, padding_len = 6;
 
+    //Inizializzo b
     ofpbuf_use_const(&b, oh, ntohs(oh->length));
-    raw = ofpraw_pull_assert(&b);
+    //Inizializzo sm copiando il contenuto di b dal bit appena dopo l'header in poi
+    sm = b.data_ + sizeof(struct ofp_header);
 
-    if (raw == OFPRAW_OFPT13_STATE_MOD) {
-        const struct ofp13_state_mod *osm = ofpbuf_data(&b);
-
-		sm->cookie = ntohll(osm->cookie);
-		sm->cookie_mask = ntohll(osm->cookie_mask);
-        sm->table_id = osm->table_id;
-		sm->command = osm->command;
-		/*sm-> = ntohs(osm->) TODO verrà impostato dinamicamente*/
-
-    } else {
-    	ovs_fatal(0, "state mod needs OpenFlow 1.3 or later\n");
-        return OFPERR_OFPBRC_BAD_TYPE;
+    //Riempio osm
+    osm->command = sm->command;
+    osm->cookie = ntohll(sm->cookie);
+    osm->cookie_mask = ntohll(sm->cookie_mask);
+    osm->table_id = sm->table_id;
+    if ((osm->command==OFPSC_SET_L_EXTRACTOR) ||
+    		(osm->command=OFPSC_SET_U_EXTRACTOR)) {
+    	if (sizeof(*sm) < 22)
+    		return OFPERR_OFPSCFC_BAD_LEN; //TODO non molto "ovs like"
+    	struct ofp_extraction *ext;
+    	ext = sm->payload - padding_len; //Tengo conto che il contenuto di sm è sfasato di padding_len bit
+    	osm->ext = *ext;
+    	osm->ext.field_count = ntohl(ext->field_count);
+    	for (i=0; i<osm->ext.field_count && i<OFPSC_MAX_FIELD_COUNT; i++)
+    		osm->ext.fields[i] = ntohl(ext->fields[i]);
+    }
+    else if ((osm->command==OFPSC_ADD_FLOW_STATE) ||
+    			(osm->command=OFPSC_DEL_FLOW_STATE)) {
+    	if (sizeof(*sm) < 26)
+    	    return OFPERR_OFPSCFC_BAD_LEN; //TODO non molto "ovs like"
+    	struct ofp_state_entry *se;
+    	se = sm->payload - padding_len; //Tengo conto che il contenuto di sm è sfasato di padding_len bit
+    	osm->se = *se;
+    	osm->se.key_len = ntohl(se->key_len);
+    	for (i=0; i<osm->se.key_len && i<OFPSC_MAX_KEY_LEN; i++)
+    		osm->se.key[i] = se->key[i];
+    	osm->se.state = ntohl(se->state);
     }
 
     return 0;
-}
-
-/* TODO davide */
-struct ofpbuf *
-ofputil_encode_state_mod(const struct ofp_header *oh,
-                                 struct ofputil_state_mod *smodm)
-{
-	struct ofpbuf *msg;
-	struct ofp13_state_mod *smod;
-
-    /*TODO_warning*/
-    msg = ofpraw_alloc(OFPRAW_OFPT13_STATE_MOD, OFP13_VERSION, 0);
-    smod = ofpbuf_put_zeros(msg, sizeof *smod);
-    /*Fine TODO_warning*/
-
-	smod->command = smodm->command;
-	smod->cookie = ntohll(smodm->cookie);
-	smod->cookie_mask = ntohll(smodm->cookie_mask);
-	smod->table_id = smodm->table_id;
-	ofpbuf_put(msg, oh, sizeof(struct ofp_header));
-	ofpbuf_put(msg, smod, sizeof(struct ofp13_state_mod));
-
-	return msg;
-}
-
-/* Decodes the OpenFlow (openstate) "flag mod" message in '*oh'
- * into an abstract form in '*fm*. Returns 0 if successful,
- * otherwise an OFPERR_* value. */
-enum ofperr
-ofputil_decode_flag_mod(const struct ofp_header *oh,
-                         struct ofputil_flag_mod *fm)
-{
-	enum ofpraw raw;
-    struct ofpbuf b;
-    int i;
-    /*TODO_warning*/
-    i=0;
-    i=i;
-    /*Fine TODO_warning*/
-    ofpbuf_use_const(&b, oh, ntohs(oh->length));
-    raw = ofpraw_pull_assert(&b);
-
-    if (raw == OFPRAW_OFPT13_FLAG_MOD) {
-        const struct ofp13_flag_mod *ofm = ofpbuf_data(&b);
-
-		fm->flag = ntohl(ofm->flag);
-		fm->flag_mask = ntohl(ofm->flag_mask);
-		fm->command = ofm->command;
-
-    } else {
-    	ovs_fatal(0, "flag mod needs OpenFlow 1.3 or later\n");
-        return OFPERR_OFPBRC_BAD_TYPE;
-    }
-
-    return 0;
-}
-/* TODO davide */
-struct ofpbuf *
-ofputil_encode_flag_mod(const struct ofp_header *oh,
-                                 struct ofputil_flag_mod *fmodm)
-{
-	struct ofpbuf *msg;
-	struct ofp13_state_mod *fmod;
-    /*TODO_warning*/
-    fmodm=fmodm;
-    msg = ofpraw_alloc(OFPRAW_OFPT13_STATE_MOD, OFP13_VERSION, 0);
-    fmod = ofpbuf_put_zeros(msg, sizeof *fmod);
-    /*Fine TODO_warning*/
-
-	ofpbuf_put(msg, oh, sizeof(struct ofp_header));
-	ofpbuf_put(msg, fmod, sizeof(struct ofp13_state_mod));
-
-	return msg;
 }
