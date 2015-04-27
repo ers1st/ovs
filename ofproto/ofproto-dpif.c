@@ -4854,6 +4854,35 @@ ofproto_dpif_delete_internal_flow(struct ofproto_dpif *ofproto,
     return 0;
 }
 
+enum ofperr
+ofproto_dpif_set_extractor(struct ofproto *ofproto, struct key_extractor *ke,
+							bool update) {
+	enum ofperr error;
+	struct dpif *dp;
+
+	FILE *f = fopen("/home/davide/Scrivania/log", "a");
+	fprintf(f, "ofproto->name = %s\n", ofproto->name);
+	fprintf(f, "ofproto->type = %s\n", ofproto->type);
+	fclose(f);
+
+//	error = dpif_open(ofproto->name, ofproto->type, &dp);
+//	error = dpif_open("ovs-system", NULL, &dp);
+//	error = dpif_open("br0", "netdev", &dp);
+	error = dpif_open("ovs-netdev", "netdev", &dp);
+	if (!error) {
+		dpif_set_extractor(dp, ke, update);
+		f = fopen("/home/davide/Scrivania/log", "a");
+		fprintf(f, "Datapath aperto (ofproto_dpif_set_extractor)\n");
+		fclose(f);
+	}
+	else {
+		f = fopen("/home/davide/Scrivania/log", "a");
+		fprintf(f, "Errore nell'apertura del datapath (ofproto_dpif_set_extractor)\n");
+		fclose(f);
+		return error;
+	}
+}
+
 const struct ofproto_class ofproto_dpif_class = {
     init,
     enumerate_types,

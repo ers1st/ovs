@@ -56,9 +56,15 @@ static void extract_key__(uint32_t **key, uint32_t *size,
         OXM_VECTOR_ADDITIONAL_SIZE;
     uint32_t *oxm_vector = xmalloc(sizeof(uint32_t) * OXM_VECTOR_SIZE);
     int i, j, k;
+    FILE *f = fopen("/home/davide/Scrivania/extract_key", "a");
+    fprintf(f, "In extract_key__()\n");
+    fprintf(f, "extractor->field_count = %d\n", extractor->field_count);
+    fprintf(f, "OXM_VECTOR_SIZE = %d\n", OXM_VECTOR_SIZE);
 
     for (i = 0, j = 0; i < extractor->field_count && j < OXM_VECTOR_SIZE;
          i++, j++) {
+    	fprintf(f, "extractor->fields[i] = %d\n", extractor->fields[i]);
+
         switch (extractor->fields[i]) {
         case OFPXMT12_OFB_IN_PORT:
             oxm_vector[j] = MINIFLOW_GET_U32(flow, in_port);
@@ -244,10 +250,12 @@ static void extract_key__(uint32_t **key, uint32_t *size,
             break;  
         
         case OFPXMT13_OFB_IPV6_EXTHDR:
+        	fprintf(f, "case OFPXMT13_OFB_IPV6_EXTHDR\n");
             //TODO fede
         	break;
         
         case OFPXMT13_OFB_STATE:
+        	fprintf(f, "case OFPXMT13_OFB_STATE\n");
             oxm_vector[j] = MINIFLOW_GET_U32(flow, state);
             break;
         
@@ -257,7 +265,8 @@ static void extract_key__(uint32_t **key, uint32_t *size,
 //            break;
         
         case OFPXMT14_OFB_PBB_UCA:
-            //TODO fede
+        	fprintf(f, "case OFPXMT14_OFB_PBB_UCA\n");
+        	//TODO fede
         	break;
 
         case OFPXMT15_OFB_TCP_FLAGS:
@@ -271,6 +280,8 @@ static void extract_key__(uint32_t **key, uint32_t *size,
     }
     *key = oxm_vector;
     *size = --j;
+
+    fclose(f);
 }
 
 /* Having the read_key, look for the state value inside the state table. */
@@ -284,6 +295,11 @@ struct state_entry *state_table_lookup(struct state_table *table,
     static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(20, 30);
 
     extract_key__(&key, &key_size, &table->read_key, flow);
+
+    FILE *f = fopen("/home/davide/Scrivania/state_table_lookup", "a");
+    fprintf(f, "key = %d\n", *key);
+    fprintf(f, "key_size = %d\n", key_size);
+    fclose(f);
 
     HMAP_FOR_EACH_WITH_HASH(e, hmap_node, jhash_words(key, key_size, 0), 
                             &table->state_entries) {
@@ -359,10 +375,14 @@ void state_table_set_extractor(struct state_table *table,
     struct key_extractor *dest;
     if (update) {
         dest = &table->write_key;
-                printf("writing key\n");
+        FILE *f = fopen("/home/davide/Scrivania/log", "a");
+        fprintf(f, "writing key\n");
+        fclose(f);
     } else {
         dest = &table->read_key;
-                printf("reading key\n");
+        FILE *f = fopen("/home/davide/Scrivania/log", "a");
+        fprintf(f, "reading key\n");
+        fclose(f);
     }
     dest->field_count = ke->field_count;
 

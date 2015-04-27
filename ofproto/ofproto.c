@@ -54,6 +54,7 @@
 #include "simap.h"
 #include "smap.h"
 #include "sset.h"
+#include "state-table.h"
 #include "timeval.h"
 #include "unaligned.h"
 #include "unixctl.h"
@@ -5920,52 +5921,74 @@ static enum ofperr ofproto_check_state(ovs_be32 *state, struct ofproto *ofproto)
 	 * conoscere anche la funzione di transizione dell'automa?) */
 }
 
-static enum ofperr set_lookup_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm) {
+static enum ofperr set_lookup_extractor(struct ofproto *ofproto,
+										struct ofputil_state_mod *osm) {
 	/*TODO davide*/
 	FILE *f = fopen("/home/davide/Scrivania/log", "a");
 	fprintf(f, "Sono in set_lookup_extractor!\n");
 	fclose(f);
-	/*struct dpif *dpif;
-	struct ofp13_extraction *ofp_ke;
-	struct key_extractor *ke;
+
+	struct dpif *dpif;
+	struct key_extractor ke;
+	int i;
 
 	//Getting the new key extractor from the message
-	ofp_ke = &(osm->extraction);
-	ke->field_count = ofp_ke->field_count;
-	ke->fields = ofp_ke->fields;
-
-	//Setting key extractor
-	int error = dpif_open(ofproto->name, ofproto->type, dpif);
-	if (error) {
-		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
-					ovs_strerror(error));
+	ke.field_count = osm->ext.field_count;
+	for (i=0; i<OFPSC_MAX_FIELD_COUNT; i++)
+		ke.fields[i] = ntohl(osm->ext.fields[i]);
+	while (i<MAX_EXTRACTION_FIELD_COUNT) {
+		ke.fields[i] = NULL;
+		i++;
 	}
-	//TODO usa le funzioni in dpif.c!
-	else dpif->dpif_class->set_extractor(dpif, ke, 0);*/
 
+	//Setting lookup extractor
+//	int error = dpif_open(ofproto->name, ofproto->type, &dpif);
+//	if (error) {
+//		FILE *f = fopen("/home/davide/Scrivania/log", "a");
+//		fprintf(f, "Errore datapath cannot be opened."
+//				"\n ofproto->name = %s\n"
+//				" ofproto>type = %s\n", ofproto->name, ofproto->type);
+//		fclose(f);
+//		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
+//					ovs_strerror(error));
+//	}
+//	else dpif_set_extractor(dpif, &ke, 0);
+	ofproto_dpif_set_extractor(ofproto, &ke, 0);
 }
 
-static enum ofperr set_update_extractor(struct ofproto *ofproto, struct ofputil_state_mod *osm) {
+static enum ofperr set_update_extractor(struct ofproto *ofproto,
+										struct ofputil_state_mod *osm) {
 	/*TODO davide: guarda state_table_set_extractor() col booleano true*/
 	FILE *f = fopen("/home/davide/Scrivania/log", "a");
 	fprintf(f, "Sono in set_update_extractor!\n");
 	fclose(f);
-	/*struct dpif *dpif;
-	struct ofp13_extraction *ofp_ke;
-	struct key_extractor *ke;
+
+	struct dpif *dpif;
+	struct key_extractor ke;
+	int i;
 
 	//Getting the new key extractor from the message
-	ofp_ke = osm->extraction;
-	ke->field_count = ofp_ke->field_count;
-	ke->fields = ofp_ke->fields;
-
-	//Setting key extractor
-	int error = dpif_open(ofproto->name, ofproto->type, dpif);
-	if (error) {
-		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
-					ovs_strerror(error));
+	ke.field_count = osm->ext.field_count;
+	for (i=0; i<OFPSC_MAX_FIELD_COUNT; i++)
+		ke.fields[i] = ntohl(osm->ext.fields[i]);
+	while (i<MAX_EXTRACTION_FIELD_COUNT) {
+		ke.fields[i] = NULL;
+		i++;
 	}
-	else dpif->dpif_class->set_extractor(dpif, ke, 1);*/
+
+	//Setting update extractor
+//	int error = dpif_open(ofproto->name, ofproto->type, &dpif);
+//	if (error) {
+//		FILE *f = fopen("/home/davide/Scrivania/log", "a");
+//		fprintf(f, "Errore datapath cannot be opened."
+//			"\n ofproto->name = %s\n"
+//			" ofproto>type = %s\n", ofproto->name, ofproto->type);
+//		fclose(f);
+//		VLOG_WARN("datapath %s cannot be opened: %s", ofproto->name,
+//					ovs_strerror(error));
+//	}
+//	else dpif_set_extractor(dpif, &ke, 1);
+	ofproto_dpif_set_extractor(ofproto, &ke, 1);
 }
 
 static enum ofperr add_flow_state(struct ofproto *ofproto, struct ofputil_state_mod *osm) {

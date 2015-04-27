@@ -2059,13 +2059,16 @@ dp_netdev_input(struct dp_netdev *dp, struct ofpbuf *packet,
     miniflow_initialize(&key.flow, key.buf);
     miniflow_extract(packet, md, &key.flow);
 
-//    /* Lookup state table and set metadata. */
-//    state_entry = state_table_lookup(&dp->state_table, &key.flow);
-//    state_table_write_state(state_entry, &key.flow);
-//    /* TODO: edit flow_print() to effectively print state value. */
-//    netdev_flow = dp_netdev_lookup_flow(dp, &key.flow);
-//    printf("Match %sfound in the flow table.\n",
-//           netdev_flow == NULL ? "not " : "");
+    /* Lookup state table and set metadata. */
+    FILE *f = fopen("/home/davide/Scrivania/dp_netdev_input", "a");
+    fprintf(f, "&dp->name = %s\n", &dp->name);
+    fclose(f);
+    state_entry = state_table_lookup(&dp->state_table, &key.flow);
+    state_table_write_state(state_entry, &key.flow);
+    /* TODO: edit flow_print() to effectively print state value. */
+    netdev_flow = dp_netdev_lookup_flow(dp, &key.flow);
+    printf("Match %sfound in the flow table.\n",
+           netdev_flow == NULL ? "not " : "");
     if (netdev_flow) {
         struct dp_netdev_actions *actions;
 

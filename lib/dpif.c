@@ -322,10 +322,23 @@ do_open(const char *name, const char *type, bool create, struct dpif **dpifp)
         goto exit;
     }
 
+    FILE *f = fopen("/home/davide/Scrivania/do_open", "a");
+    fprintf(f, "name = %s\ntype = %s\n", name, type);
+    fclose(f);
+
     error = registered_class->dpif_class->open(registered_class->dpif_class,
                                                name, create, &dpif);
+    if (error) {
+    	f = fopen("/home/davide/Scrivania/do_open", "a");
+    	fprintf(f, "Errore in registered_class->dpif_class->open(registered_class->dpif_class, name, create, &dpif)\n");
+    	fclose(f);
+    }
+
     if (!error) {
         ovs_assert(dpif->dpif_class == registered_class->dpif_class);
+    	f = fopen("/home/davide/Scrivania/do_open", "a");
+        fprintf(f, "Nessun errore\n");
+        fclose(f);
     } else {
         dp_class_unref(registered_class);
     }
