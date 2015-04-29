@@ -589,7 +589,7 @@ configure:12423: gcc -o conftest -g -O2   conftest.c  >&5
 conftest.c:36:6: warning: conflicting types for built-in function 'pow' [enabled by default]
  char pow ();
       ^
-/tmp/ccKoZc8W.o: In function `main':
+/tmp/ccFXtNdp.o: In function `main':
 /home/davide/Scrivania/Tesi/ovs-openstate/conftest.c:40: undefined reference to `pow'
 collect2: error: ld returned 1 exit status
 configure:12423: $? = 1
@@ -649,7 +649,7 @@ configure:12479: $? = 0
 configure:12496: result: none required
 configure:12504: checking for library containing timer_create
 configure:12535: gcc -o conftest -g -O2   conftest.c -lm  >&5
-/tmp/ccWRmOI4.o: In function `main':
+/tmp/ccw5x6xB.o: In function `main':
 /home/davide/Scrivania/Tesi/ovs-openstate/conftest.c:40: undefined reference to `timer_create'
 collect2: error: ld returned 1 exit status
 configure:12535: $? = 1
@@ -702,7 +702,7 @@ configure:12535: $? = 0
 configure:12552: result: -lrt
 configure:12560: checking for library containing pthread_sigmask
 configure:12591: gcc -o conftest -g -O2   conftest.c -lrt -lm  >&5
-/tmp/cc2EIKdb.o: In function `main':
+/tmp/ccEXQ9vE.o: In function `main':
 /home/davide/Scrivania/Tesi/ovs-openstate/conftest.c:40: undefined reference to `pthread_sigmask'
 collect2: error: ld returned 1 exit status
 configure:12591: $? = 1
@@ -1847,7 +1847,7 @@ configure:13778: gcc -o conftest -g -O2   conftest.c -lpthread -lrt -lm  >&5
 conftest.c:57:6: warning: conflicting types for built-in function '__atomic_load_8' [enabled by default]
  char __atomic_load_8 ();
       ^
-/tmp/ccLoSKgl.o: In function `main':
+/tmp/cc2aiKN4.o: In function `main':
 /home/davide/Scrivania/Tesi/ovs-openstate/conftest.c:61: undefined reference to `__atomic_load_8'
 collect2: error: ld returned 1 exit status
 configure:13778: $? = 1
@@ -1956,7 +1956,7 @@ configure:14000: $? = 0
 configure:14017: result: none required
 configure:14035: checking for pthread_set_name_np
 configure:14035: gcc -o conftest -g -O2   conftest.c -latomic -lpthread -lrt -lm  >&5
-/tmp/ccvZVkqh.o: In function `main':
+/tmp/ccmOIdwX.o: In function `main':
 /home/davide/Scrivania/Tesi/ovs-openstate/conftest.c:89: undefined reference to `pthread_set_name_np'
 collect2: error: ld returned 1 exit status
 configure:14035: $? = 1
