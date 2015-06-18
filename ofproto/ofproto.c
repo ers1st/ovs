@@ -5924,7 +5924,7 @@ static enum ofperr ofproto_check_state(ovs_be32 *state, struct ofproto *ofproto)
 static enum ofperr set_lookup_extractor(struct ofproto *ofproto,
 										struct ofputil_state_mod *osm) {
 	/*TODO davide*/
-	FILE *f = fopen("/home/davide/Scrivania/log", "a");
+	FILE *f = fopen("/home/davide/Scrivania/set_lookup_extractor", "a");
 	fprintf(f, "Sono in set_lookup_extractor!\n");
 	fclose(f);
 
@@ -5940,6 +5940,10 @@ static enum ofperr set_lookup_extractor(struct ofproto *ofproto,
 		ke.fields[i] = NULL;
 		i++;
 	}
+
+	f = fopen("/home/davide/Scrivania/set_lookup_extractor", "a");
+	fprintf(f, "ke.fields[0] = %i\n", ke.fields[0]);
+	fclose(f);
 
 	//Setting lookup extractor
 //	int error = dpif_open(ofproto->name, ofproto->type, &dpif);
@@ -6038,6 +6042,67 @@ static enum ofperr del_flow_state(struct ofproto *ofproto, struct ofputil_state_
 	fclose(f);
 }
 
+//static void openstate_dump_flows(struct dpif *dpif)
+//{
+//    const struct dpif_flow_stats *stats;
+//    const struct nlattr *actions;
+//    struct dpif_flow_dump flow_dump;
+//    const struct nlattr *key;
+//    const struct nlattr *mask;
+//    struct dpif_port dpif_port;
+//    struct dpif_port_dump port_dump;
+//    struct hmap portno_names;
+//    struct simap names_portno;
+//    size_t actions_len;
+//    size_t key_len;
+//    size_t mask_len;
+//    struct ds ds;
+//    void *state = NULL;
+//    int error;
+//    int verbosity = 1;
+//
+//
+//    hmap_init(&portno_names);
+//    simap_init(&names_portno);
+//    DPIF_PORT_FOR_EACH (&dpif_port, &port_dump, dpif) {
+//        odp_portno_names_set(&portno_names, dpif_port.port_no, dpif_port.name);
+//        simap_put(&names_portno, dpif_port.name,
+//                  odp_to_u32(dpif_port.port_no));
+//    }
+//
+//
+//    ds_init(&ds);
+//    error = dpif_flow_dump_start(&flow_dump, dpif);
+//    if (error) {
+//        goto exit;
+//    }
+//    dpif_flow_dump_state_init(dpif, &state);
+//    while (dpif_flow_dump_next(&flow_dump, state, &key, &key_len,
+//                               &mask, &mask_len, &actions, &actions_len,
+//                               &stats)) {
+//        ds_clear(&ds);
+//        odp_flow_format(key, key_len, mask, mask_len, &portno_names, &ds,
+//                        verbosity);
+//        ds_put_cstr(&ds, ", ");
+//
+//        dpif_flow_stats_format(stats, &ds);
+//        ds_put_cstr(&ds, ", actions:");
+//        format_odp_actions(&ds, actions, actions_len);
+//        printf("%s\n", ds_cstr(&ds));
+//    }
+//    dpif_flow_dump_state_uninit(dpif, state);
+//    error = dpif_flow_dump_done(&flow_dump);
+//
+//exit:
+//    if (error) {
+//        ovs_fatal(error, "Failed to dump flows from datapath");
+//    }
+//    odp_portno_names_destroy(&portno_names);
+//    hmap_destroy(&portno_names);
+//    simap_destroy(&names_portno);
+//    ds_destroy(&ds);
+//}
+
 static enum ofperr handle_state_mod__(struct ofproto *ofproto,
 		struct ofputil_state_mod *sm)
 OVS_EXCLUDED(ofproto_mutex)
@@ -6067,6 +6132,11 @@ OVS_EXCLUDED(ofproto_mutex)
 		error = OFPERR_OFPFMFC_BAD_COMMAND;
 		break;
 	}
+
+	/*Stampa dei flow della table*/
+//	struct dpif *dp;
+//	dpif_open("ovs-netdev", "netdev", &dp);
+//	openstate_dump_flows(dp);
 
 	ofmonitor_flush(ofproto->connmgr);
 	ovs_mutex_unlock(&ofproto_mutex);

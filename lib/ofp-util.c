@@ -7580,7 +7580,6 @@ ofputil_encode_bundle_add(enum ofp_version ofp_version,
 enum ofperr ofputil_decode_state_mod(const struct ofp_header *oh,
 										struct ofputil_state_mod *osm) {
 
-	FILE *f = fopen("/home/davide/Scrivania/state_mod", "a");
 
 	//TODO Davide
     struct ofp13_state_mod *sm;
@@ -7600,21 +7599,42 @@ enum ofperr ofputil_decode_state_mod(const struct ofp_header *oh,
     if ((osm->command==OFPSC_SET_L_EXTRACTOR) ||
     		(osm->command==OFPSC_SET_U_EXTRACTOR)) {
     	if (sizeof(*sm) < 6) {
+    		FILE *f = fopen("/home/davide/Scrivania/ofputil_decode_state_mod", "a");
     		fprintf(f, "Errore OFPERR_OFPSCFC_BAD_LEN (ofputil_decode_state_mod)\n");
+    		fclose(f);
     		return OFPERR_OFPSCFC_BAD_LEN; //TODO non molto "ovs like"
     	}
+    	FILE *f = fopen("/home/davide/Scrivania/ofputil_decode_state_mod", "a");
+    	fprintf(f, "comando: OFPSC_SET_U/L_EXTRACTOR\n");
+    	fclose(f);
     	struct ofp_extraction *ext;
     	ext = sm->payload - padding_len; //Tengo conto che il contenuto di sm è sfasato di padding_len bit
+    	f = fopen("/home/davide/Scrivania/ofputil_decode_state_mod", "a");
+    	fprintf(f, "ext->field_count = %i\n", ntohl(ext->field_count));
+    	for (i=0; i<8; i++) {
+    		uint32_t val = ext->fields[i];
+    		fprintf(f, "ext->fields[%i] = %i\n", i, val);
+    	}
+    	fprintf(f, "ext->fields[0] = %i\n", ntohl(ext->fields[0]));
     	osm->ext = *ext;
     	osm->ext.field_count = ntohl(ext->field_count);
     	for (i=0; i<osm->ext.field_count && i<OFPSC_MAX_FIELD_COUNT; i++)
     		osm->ext.fields[i] = ntohl(ext->fields[i]);
+    	/*----------------prova---------------*/
+    	    osm->ext.fields[0] = OXM_OF_IPV4_SRC;
+    	/*--------------------------------------*/
+    	fprintf(f, "(prova) ext->fields[0] = %i\n", ntohl(ext->fields[0]));
+    	fprintf(f, "OXM_OF_IPV4_SRC = %i\n", OXM_OF_IPV4_SRC);
+    	fclose(f);
+
     }
     else if ((osm->command==OFPSC_ADD_FLOW_STATE) ||
     			(osm->command==OFPSC_DEL_FLOW_STATE)) {
     	if (sizeof(*sm) < 10) {
+    		FILE *f = fopen("/home/davide/Scrivania/ofputil_decode_state_mod", "a");
     		fprintf(f, "Errore OFPERR_OFPSCFC_BAD_LEN (ofputil_decode_state_mod)\n");
-    	    return OFPERR_OFPSCFC_BAD_LEN; //TODO non molto "ovs like"
+    	    fclose(f);
+    		return OFPERR_OFPSCFC_BAD_LEN; //TODO non molto "ovs like"
     	}
     	struct ofp_state_entry *se;
     	se = sm->payload - padding_len; //Tengo conto che il contenuto di sm è sfasato di padding_len bit
@@ -7624,8 +7644,6 @@ enum ofperr ofputil_decode_state_mod(const struct ofp_header *oh,
     		osm->se.key[i] = se->key[i];
     	osm->se.state = ntohl(se->state);
     }
-
-	fclose(f);
 
     return 0;
 }

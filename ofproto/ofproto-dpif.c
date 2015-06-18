@@ -4865,6 +4865,11 @@ ofproto_dpif_set_extractor(struct ofproto *ofproto, struct key_extractor *ke,
 	fprintf(f, "ofproto->type = %s\n", ofproto->type);
 	fclose(f);
 
+	f = fopen("/home/davide/Scrivania/key_ext", "a");
+	fprintf(f, "ke->field_count = %d\n", ke->field_count);
+	fprintf(f, "ke->fields[0] = %d\n", ke->fields[0]);
+	fclose(f);
+
 //	error = dpif_open(ofproto->name, ofproto->type, &dp);
 //	error = dpif_open("ovs-system", NULL, &dp);
 //	error = dpif_open("br0", "netdev", &dp);
