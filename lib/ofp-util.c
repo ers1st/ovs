@@ -7620,11 +7620,11 @@ enum ofperr ofputil_decode_state_mod(const struct ofp_header *oh,
     	osm->ext.field_count = ntohl(ext->field_count);
     	for (i=0; i<osm->ext.field_count && i<OFPSC_MAX_FIELD_COUNT; i++)
     		osm->ext.fields[i] = ntohl(ext->fields[i]);
-    	/*----------------prova---------------*/
-    	    osm->ext.fields[0] = OXM_OF_IPV4_SRC;
-    	/*--------------------------------------*/
-    	fprintf(f, "(prova) ext->fields[0] = %i\n", ntohl(ext->fields[0]));
-    	fprintf(f, "OXM_OF_IPV4_SRC = %i\n", OXM_OF_IPV4_SRC);
+//    	/*----------------prova---------------*/
+//    	    osm->ext.fields[0] = OXM_OF_IPV4_SRC;
+//    	/*--------------------------------------*/
+//    	fprintf(f, "(prova) ext->fields[0] = %i\n", ntohl(ext->fields[0]));
+//    	fprintf(f, "OXM_OF_IPV4_SRC = %i\n", OXM_OF_IPV4_SRC);
     	fclose(f);
 
     }
